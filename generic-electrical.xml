@@ -125,7 +125,9 @@
   <connector>
     <input>Alternator 1</input>
     <output>Master Bus</output>
-    <switch>/controls/switches/master-alt</switch>
+    <switch>
+      <prop>/controls/switches/master-alt</prop>
+    </switch>
   </connector>
 
   <connector>
@@ -136,7 +138,9 @@
   <connector>
     <input>Battery 1</input>
     <output>Master Bus</output>
-    <switch>/controls/switches/master-bat</switch>
+    <switch>
+      <prop>/controls/switches/master-bat</prop>
+    </switch>
   </connector>
 
   <!-- connect starter output -->
@@ -144,8 +148,10 @@
   <connector>
     <input>Master Bus</input>
     <output>Starter 1 Power</output>
-    <switch>/controls/engines/engine[0]/starter</switch>
-    <initial-state>off</initial-state>
+    <switch>
+      <prop>/controls/engines/engine[0]/starter</prop>
+      <initial-state>off</initial-state>
+    </switch>
   </connector>
 
   <!-- connect master bus outputs -->
@@ -153,73 +159,97 @@
   <connector>
     <input>Master Bus</input>
     <output>Cabin Lights Power</output>
-    <switch>/controls/circuit-breakers/cabin-lights-pwr</switch>
+    <switch>
+      <prop>/controls/circuit-breakers/cabin-lights-pwr</prop>
+    </switch>
   </connector>
 
   <connector>
     <input>Master Bus</input>
     <output>Instrument Power</output>
-    <switch>/controls/circuit-breakers/instr-ignition-switch</switch>
+    <switch>
+      <prop>/controls/circuit-breakers/instr-ignition-switch</prop>
+    </switch>
   </connector>
 
   <connector>
     <input>Master Bus</input>
     <output>Fuel Pump Power</output>
-    <switch>/controls/engines/engine[0]/fuel-pump</switch>
+    <switch>
+      <prop>/controls/engines/engine[0]/fuel-pump</prop>
+    </switch>
   </connector>
 
   <connector>
     <input>Master Bus</input>
     <output>Landing Light Power</output>
-    <switch>/controls/switches/landing-light</switch>
+    <switch>
+      <prop>/controls/switches/landing-light</prop>
+    </switch>
   </connector>
 
   <connector>
     <input>Master Bus</input>
     <output>Beacon Power</output>
-    <switch>/controls/switches/flashing-beacon</switch>
+    <switch>
+      <prop>/controls/switches/flashing-beacon</prop>
+    </switch>
   </connector>
 
   <connector>
     <input>Master Bus</input>
     <output>Flaps Power</output>
-    <switch>/controls/circuit-breakers/flaps</switch>
+    <switch>
+      <prop>/controls/circuit-breakers/flaps</prop>
+    </switch>
   </connector>
 
   <connector>
     <input>Master Bus</input>
     <output>Turn Coordinator Power</output>
-    <switch>/controls/circuit-breakers/turn-coordinator</switch>
+    <switch>
+      <prop>/controls/circuit-breakers/turn-coordinator</prop>
+    </switch>
   </connector>
 
   <connector>
     <input>Master Bus</input>
     <output>Map Lights Power</output>
-    <switch>/controls/switches/nav-lights</switch>
+    <switch>
+      <prop>/controls/switches/nav-lights</prop>
+    </switch>
   </connector>
 
   <connector>
     <input>Master Bus</input>
     <output>Instrument Lights Power</output>
-    <switch>/controls/circuit-breakers/instrument-lights</switch>
+    <switch>
+      <prop>/controls/circuit-breakers/instrument-lights</prop>
+    </switch>
   </connector>
 
   <connector>
     <input>Master Bus</input>
     <output>Strobe Lights Power</output>
-    <switch>/controls/switches/strobe-lights</switch>
+    <switch>
+      <prop>/controls/switches/strobe-lights</prop>
+    </switch>
   </connector>
 
   <connector>
     <input>Master Bus</input>
     <output>Taxi Lights Power</output>
-    <switch>/controls/switches/taxi-lights</switch>
+    <switch>
+      <prop>/controls/switches/taxi-lights</prop>
+    </switch>
   </connector>
 
   <connector>
     <input>Master Bus</input>
     <output>Pitot Heat Power</output>
-    <switch>/controls/switches/pitot-heat</switch>
+    <switch>
+      <prop>/controls/switches/pitot-heat</prop>
+    </switch>
   </connector>
 
 </PropertyList>
