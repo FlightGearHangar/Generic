@@ -318,7 +318,7 @@
       <prop>/autopilot/internal/target-climb-rate-fps</prop>
     </output>
     <config>
-      <Kp>1.0</Kp>        <!-- proportional gain -->
+      <Kp>0.5</Kp>        <!-- proportional gain -->
       <beta>1.0</beta>    <!-- input value weighing factor -->
       <alpha>0.1</alpha>  <!-- low pass filter weighing factor -->
       <gamma>0.0</gamma>  <!-- input value weighing factor for -->
@@ -469,7 +469,8 @@
       <value>speed-with-throttle</value>
     </enable>
     <input>
-      <prop>/autopilot/internal/lookahead-5-sec-airspeed-kt</prop>
+      <!-- <prop>/autopilot/internal/lookahead-5-sec-airspeed-kt</prop> -->
+      <prop>/velocities/airspeed-kt</prop>
     </input>
     <reference>
       <prop>/autopilot/settings/target-speed-kt</prop>
@@ -477,6 +478,12 @@
     <output>
       <prop>/controls/engines/engine[0]/throttle</prop>
       <prop>/controls/engines/engine[1]/throttle</prop>
+      <prop>/controls/engines/engine[2]/throttle</prop>
+      <prop>/controls/engines/engine[3]/throttle</prop>
+      <prop>/controls/engines/engine[4]/throttle</prop>
+      <prop>/controls/engines/engine[5]/throttle</prop>
+      <prop>/controls/engines/engine[6]/throttle</prop>
+      <prop>/controls/engines/engine[7]/throttle</prop>
     </output>
     <config>
       <Kp>0.1</Kp>        <!-- proportional gain -->
@@ -491,13 +498,13 @@
     </config>
   </pid-controller>
 
- <!-- Hold speed by varying pitch (Two stage cascading controller) --> 
+ <!-- Hold speed by varying pitch trim (Two stage cascading controller) --> 
  <pid-controller>
-    <name>Speed hold (vary pitch) Stage #1</name>
+    <name>Speed hold (vary pitch trim) Stage #1</name>
     <debug>false</debug>
     <enable>
       <prop>/autopilot/locks/speed</prop>
-      <value>speed-with-pitch</value>
+      <value>speed-with-pitch-trim</value>
     </enable>
     <input>
       <prop>/autopilot/internal/lookahead-5-sec-airspeed-kt</prop>
@@ -522,11 +529,11 @@
   </pid-controller>
 
  <pid-controller>
-    <name>Speed hold (vary pitch) Stage #2</name>
+    <name>Speed hold (vary pitch trim) Stage #2</name>
     <debug>false</debug>
     <enable>
       <prop>/autopilot/locks/speed</prop>
-      <value>speed-with-pitch</value>
+      <value>speed-with-pitch-trim</value>
     </enable>
     <input>
       <prop>/orientation/pitch-deg</prop>
