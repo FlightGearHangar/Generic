@@ -64,6 +64,12 @@ file, these values will be used (they are hardcoded).
     <number>0</number>
   </dme>
 
+  <encoder>
+    <name>encoder</name>
+    <number>0</number>
+    <static-port>/systems/static</static-port>
+  </encoder>
+
   <heading-indicator>
     <name>heading-indicator</name>
     <number>0</number>
@@ -79,6 +85,12 @@ file, these values will be used (they are hardcoded).
     <name>slip-skid-ball</name>
     <number>0</number>
   </slip-skid-ball>
+
+  <transponder>
+    <name>transponder</name>
+    <number>0</number>
+    <encoder>/instrumentation/encoder</encoder>
+  </transponder>
 
   <turn-indicator>
     <name>turn-indicator</name>
