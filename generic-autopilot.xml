@@ -301,7 +301,7 @@
 
   <!-- Stage #1 sets target rate of climb based on diff between current alt -->
   <!-- and target altitude. -->
-  <pid-controller>
+  <pi-simple-controller>
     <name>Altitude Hold (Altimeter based) Stage 1</name>
     <debug>false</debug>
     <enable>
@@ -309,7 +309,7 @@
       <value>altitude-hold</value>
     </enable>
     <input>
-      <prop>/instrumentation/altimeter/indicated-altitude-ft</prop>
+      <prop>/position/altitude-ft</prop>
     </input>
     <reference>
       <prop>/autopilot/settings/target-altitude-ft</prop>
@@ -318,17 +318,12 @@
       <prop>/autopilot/internal/target-climb-rate-fps</prop>
     </output>
     <config>
-      <Kp>0.5</Kp>        <!-- proportional gain -->
-      <beta>1.0</beta>    <!-- input value weighing factor -->
-      <alpha>0.1</alpha>  <!-- low pass filter weighing factor -->
-      <gamma>0.0</gamma>  <!-- input value weighing factor for -->
-                          <!-- unfiltered derivative error -->
-      <Ti>25.0</Ti>     <!-- integrator time -->
-      <Td>0.000000001</Td>    <!-- derivator time -->
+      <Kp>0.3</Kp>          <!-- proportional gain -->
+      <Ki>0.0</Ki>          <!-- integral gain -->
       <u_min>-16.67</u_min> <!-- minimum output clamp -->
-      <u_max>8.33</u_max> <!-- maximum output clamp -->
+      <u_max>8.33</u_max>   <!-- maximum output clamp -->
     </config>
-  </pid-controller>
+  </pi-simple-controller>
 
   <!-- Stage #2 drives the elevator-trim to achieve the desired climb rate. -->
   <pid-controller>
@@ -364,7 +359,7 @@
 
   <!-- Stage #1 sets target rate of climb based on diff between current agl -->
   <!-- and target agl. -->
-  <pid-controller>
+  <pi-simple-controller>
     <name>AGL Hold (Altimeter based) Stage 1</name>
     <debug>false</debug>
     <enable>
@@ -381,17 +376,12 @@
       <prop>/autopilot/internal/target-climb-rate-fps</prop>
     </output>
     <config>
-      <Kp>1.0</Kp>        <!-- proportional gain -->
-      <beta>1.0</beta>    <!-- input value weighing factor -->
-      <alpha>0.1</alpha>  <!-- low pass filter weighing factor -->
-      <gamma>0.0</gamma>  <!-- input value weighing factor for -->
-                          <!-- unfiltered derivative error -->
-      <Ti>25.0</Ti>     <!-- integrator time -->
-      <Td>0.000000001</Td>    <!-- derivator time -->
+      <Kp>0.3</Kp>          <!-- proportional gain -->
+      <Ki>0.0</Ki>          <!-- integral gain -->
       <u_min>-16.67</u_min> <!-- minimum output clamp -->
-      <u_max>8.33</u_max> <!-- maximum output clamp -->
+      <u_max>8.33</u_max>   <!-- maximum output clamp -->
     </config>
-  </pid-controller>
+  </pi-simple-controller>
 
   <!-- Stage #2 drives the elevator-trim to achieve the desired climb rate. -->
   <pid-controller>
