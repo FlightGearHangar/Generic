@@ -70,16 +70,31 @@ file, these values will be used (they are hardcoded).
     <static-port>/systems/static</static-port>
   </encoder>
 
+  <marker-beacon>
+    <name>marker-beacon</name>
+    <number>0</number>
+  </marker-beacon>
+
   <heading-indicator>
     <name>heading-indicator</name>
     <number>0</number>
     <vacuum-system>/systems/vacuum</vacuum-system>
   </heading-indicator>
 
+  <KT-70>
+    <name>kt-70</name>
+    <number>0</number>
+  </KT-70>
+
   <magnetic-compass>
     <name>magnetic-compass</name>
     <number>0</number>
   </magnetic-compass>
+
+  <nav-radio>
+    <name>nav-radio</name>
+    <number>0</number>
+  </nav-radio>
 
   <slip-skid-ball>
     <name>slip-skid-ball</name>
