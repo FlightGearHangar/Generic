@@ -92,8 +92,13 @@ file, these values will be used (they are hardcoded).
   </magnetic-compass>
 
   <nav-radio>
-    <name>nav-radio</name>
+    <name>nav</name>
     <number>0</number>
+  </nav-radio>
+
+  <nav-radio>
+    <name>nav</name>
+    <number>1</number>
   </nav-radio>
 
   <slip-skid-ball>
