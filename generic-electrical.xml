@@ -43,6 +43,7 @@
     <!-- current. -->
     <prop>/systems/electrical/outputs/avionics-fan</prop>
     <prop>/systems/electrical/outputs/gps-mfd</prop>
+    <prop>/systems/electrical/outputs/gps</prop>
     <prop>/systems/electrical/outputs/hsi</prop>
     <prop>/systems/electrical/outputs/navcom[0]</prop>
     <prop>/systems/electrical/outputs/dme</prop>
