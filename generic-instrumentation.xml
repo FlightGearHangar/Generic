@@ -127,5 +127,11 @@ file, these values will be used (they are hardcoded).
     <name>gps</name>
     <number>0</number>
   </gps>
+<!--  -->
+  <tacan>
+    <name>tacan</name>
+    <number>0</number>
+  </tacan>
+
 
 </PropertyList>
