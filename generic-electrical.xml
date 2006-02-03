@@ -53,6 +53,7 @@
     <prop>/systems/electrical/outputs/transponder</prop>
     <prop>/systems/electrical/outputs/autopilot</prop>
     <prop>/systems/electrical/outputs/adf</prop>
+    <prop>/systems/electrical/outputs/tacan</prop>
   </bus>
 
   <!-- Generic Outputs -->
