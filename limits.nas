@@ -1,150 +1,128 @@
 # $Id$
-
 #
 # Nasal script to print errors to the screen when aircraft exceed design limits:
-#  - extending flaps above maximum flap extension speed
+#  - extending flaps above maximum flap extension speed(s)
 #  - extending gear above maximum gear extension speed
 #  - exceeding Vna
 #  - exceeding structural G limits
 #
-#
-# to use, define one or more of 
-# limits/max-flap-extension-speed
+# To use, include this .nas file and define one or more of
+# limits/max-flap-extension-speed/speed
+# limits/max-flap-extension-speed/flaps
 # limits/vne
 # limits/max-gear-extension-speed
 # limits/max-positive-g
 # limits/max-negative-g (must be defined in max-positive-g defined)
 #
-# then include this .nas file in the aircraft XML. Note that .nas file must be
-# included _after_ limits have been defined.
-#
+# You can defined multiple max-flap-extension-speed entries, for max extension
+# speeds for different flap settings.
+
+checkFlaps = func {
+  airspeed = getprop("velocities/airspeed-kt");
+  flapsetting = cmdarg().getValue();
+  ltext = "";
+
+  limits = props.globals.getNode("limits");
+
+  if ((limits != nil) and (limits.getChildren("max-flap-extension-speed") != nil))
+  {
+    children = limits.getChildren("max-flap-extension-speed");
+    foreach(c; children)
+    {
+      if ((c.getChild("flaps") != nil) and
+          (c.getChild("speed") != nil)     )
+      {
+        flaps = c.getChild("flaps").getValue();
+        speed = c.getChild("speed").getValue();
+
+        if ((flaps != nil)        and
+            (speed != nil)        and
+            (flapsetting > flaps) and
+            (airspeed > speed)       )
+        {
+          ltext = "Flaps extended above maximum flap extension speed!";
+        }
+      }
+    }
+
+    if (ltext != "")
+    {
+      screen.log.write(ltext);
+    }
+  }
+}
 
 
-# ==================================== timer stuff ===========================================
+checkGear = func {
+  airspeed = getprop("velocities/airspeed-kt");
+  max_gear = cmdarg().getValue();
 
-# set the update period
+  if ((max_gear != nil) and (airspeed > max_gear))
+  {
+    screen.log.write("Gear extended above maximum extension speed!");
+  }
+}
 
-UPDATE_PERIOD = 0.3;
 
-# set the timer for the selected function
-
-registerTimer = func {
-	
-    settimer(arg[0], UPDATE_PERIOD);
-
-} # end function 
-
-# =============================== end timer stuff ===========================================
+# Set the listeners
+setlistener("controls/flight/flaps", checkFlaps);
+setlistener("controls/gear/gear-down", checkGear);
 
 # =============================== Pilot G stuff (taken from hurricane.nas) =================================
-
 pilot_g = props.globals.getNode("fdm/jsbsim/accelerations/a-pilot-z-ft_sec2", 1);
-timeratio = props.globals.getNode("accelerations/timeratio", 1);
-pilot_g_damped = props.globals.getNode("fdm/jsbsim/accelerations/damped-a-pilot-z-ft_sec2", 1);
 pilot_g.setDoubleValue(0);
-pilot_g_damped.setDoubleValue(0); 
-timeratio.setDoubleValue(0.03); 
 
-g_damp = 0;
+var g_damp = 0;
 
 updatePilotG = func {
-        var n = timeratio.getValue(); 
-	var g = pilot_g.getValue() ;
-	#if (g == nil) { g = 0; }
-	g_damp = ( g * n) + (g_damp * (1 - n));
+  var g = pilot_g.getValue() ;
+  #if (g == nil) { g = 0; }
+  g_damp = ( g * 0.2) + (g_damp * 0.8);
 
-	pilot_g_damped.setDoubleValue(g_damp);
-
-        settimer(updatePilotG, 0.1);
-
-} #end updatePilotG()
+  settimer(updatePilotG, 0.2);
+}
 
 updatePilotG();
 
-# ======================= Load/Speed limits =========================
+checkGandVNE = func {
+  max_positive = getprop("limits/max-positive-g");
+  max_negative = getprop("limits/max-negative-g");
+  msg = "";
 
-if ((getprop("limits/max-flap-extension-speed") != nil) or
-    (getprop("limits/vne") != nil) or
-    (getprop("limits/max-gear-extension-speed") != nil) or
-    (getprop("limits/max-positive-g") != nil))
-{
-  setprop("/accelerations/pilot/z-accel-fps_sec",0);
-  
-  checkLimits = func {
+  # Convert the ft/sec^2 into Gs - allowing for gravity.
+  g = (- g_damp) / 32;
 
-    # Flaps extension speed check
-    if (getprop("limits/max-flap-extension-speed") != nil)
-    {
-      if ((getprop("surface-positions/flap-pos-norm") > 0)    and
-          (getprop("velocities/airspeed-kt") > getprop("limits/max-flap-extension-speed")) and
-	  (getprop("limits/flap-warning-displayed") != 1))
-      {
-        # display a warning once
-        screenPrint("Flaps extended above maximum flap extension speed!");
-	setprop("limits/flap-warning-displayed", 1);	
-      }
-      
-      if ((getprop("surface-positions/flap-pos-norm") == 0)    or
-          (getprop("velocities/airspeed-kt") < getprop("limits/max-flap-extension-speed")))
-      {
-        #reset warning message
-	setprop("limits/flap-warning-displayed", 0);	      
-      }
-    }
+  if ((max_positive != nil) and (g > max_positive))
+  {
+    msg = "Airframe structural positive-g load limit exceeded!";
+  }
 
-    # G-loads check - both limits must be defined
-    if (getprop("limits/max-positive-g") != nil)
-    {
-      # Convert the ft/sec^2 into Gs - allowing for gravity.
-      g = (- getprop("/fdm/jsbsim/accelerations/damped-a-pilot-z-ft_sec2")) / 32;
-      
-      setprop("limits/current-g", g);
+  if ((max_negative != nil) and (g < max_negative))
+  {
+    msg = "Airframe structural negative-g load limit exceeded!";
+  }
 
-      if (g < getprop("limits/max-negative-g"))
-      {
-	screenPrint("Airframe structural negative-g load limit exceeded!");
-      }
+  # Now check VNE
+  airspeed = getprop("velocities/airspeed-kt");
+  vne      = getprop("limits/vne");
 
-      if (g > getprop("limits/max-positive-g"))
-      {
-	screenPrint("Airframe structural positive-g load limit exceeded!");
-      }
-    }
+  if ((airspeed != nil) and (vne != nil) and (airspeed > vne))
+  {
+    msg = "Airspeed exceeds Vne!";
+  }
 
-    # Vne speed check
-    if (getprop("limits/vne") != nil)
-    {
-      # Simply check we haven't exceeded the maximum speed for the aircraft
-      if (getprop("velocities/airspeed-kt") > getprop("limits/vne"))
-      {
-	screenPrint("Airspeed exceeds Vne!");
-      }
-    }
-    
-    # Gear extension speed check. We check whether the gear is being extended or retracted.
-    if (getprop("limits/max-gear-extension-speed") != nil)
-    {
-      if ((getprop("gear/gear[0]/position-norm") != getprop("/controls/gear/gear-down"))    and
-          (getprop("velocities/airspeed-kt") > getprop("limits/max-gear-extension-speed")) and
-	  (getprop("limits/gear-warning-displayed") != 1))
-      {
-        # display a warning once
-        screenPrint("Gear extended above maximum gear extension speed!");
-	setprop("limits/gear-warning-displayed", 1);	
-      }
-      
-      if ((getprop("gear/gear[0]/position-norm") == getprop("/controls/gear/gear-down"))    or
-          (getprop("velocities/airspeed-kt") < getprop("limits/max-gear-extension-speed")))
-      {
-        #reset warning message
-	setprop("limits/gear-warning-displayed", 0);	      
-      }
-    }
-    
-    registerTimer(checkLimits);
-  }  
+  if (msg != "")
+  {
+    # If we have a message, display it, but don't bother checking for
+    # any other errors for 10 seconds. Otherwise we're likely to get
+    # repeated messages.
+    screen.log.write(msg);
+    settimer(checkGandVNE, 10);
+  }
+  else
+  {
+    settimer(checkGandVNE, 1);
+  }
 }
 
-checkLimits();
-
-
+checkGandVNE();
