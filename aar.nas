@@ -24,8 +24,12 @@ var aimodelsN = nil;
 
 # initialize property if it doesn't exist, and set node type otherwise
 init_prop = func(node, prop, val, type = "double") {
-	if (node.getNode(prop) != nil) {
-		val = node.getNode(prop).getValue();
+	var n = node.getNode(prop);
+	if (n != nil) {
+		var v = n.getValue();
+		if (v != nil) {
+			val = v;
+		}
 	}
 	node = node.getNode(prop, 1);
 	if (type == "double") {
