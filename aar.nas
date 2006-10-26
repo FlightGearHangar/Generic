@@ -191,7 +191,7 @@ update_loop = func {
 
 
 
-initialize = func {
+setlistener("/sim/signals/fdm-initialized", func {
 	fuel.updateFuel = func {}	# kill $FG_ROOT/Nasal/fuel.nas' loop
 
 	refuelingN = props.globals.getNode("/systems/refuel/contact", 1);
@@ -216,20 +216,7 @@ initialize = func {
 
 	setlistener("sim/freeze/fuel", func { fuel_freeze = cmdarg().getBoolValue() }, 1);
 	setlistener("sim/ai/enabled", func { ai_enabled = cmdarg().getBoolValue() }, 1);
-}
-
-
-
-wait_for_fdm = func {
-	if (getprop("/position/altitude-agl-ft")) { # is there a better indicator?
-		initialize();
-		update_loop();
-	} else {
-		settimer(wait_for_fdm, 1);
-	}
-}
-
-
-settimer(wait_for_fdm, 0);
+	update_loop();
+});
 
 
