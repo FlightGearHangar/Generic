@@ -48,8 +48,8 @@ update_loop = func {
 	var tankers = [];
 	if (ai_enabled) {
 		foreach (a; aimodelsN.getChildren("aircraft")) {
-			var contact = a.getNode("refuel/contact").getBoolValue();
-			var tanker = a.getNode("tanker").getBoolValue();
+			var contact = a.getNode("refuel/contact", 1).getBoolValue();
+			var tanker = a.getNode("tanker", 1).getBoolValue();
 			#var id = a.getNode("id").getValue();
 			#print("ai '", id, "'  contact=", contact, "  tanker=", tanker);
 
@@ -59,8 +59,8 @@ update_loop = func {
 		}
 
 		foreach (m; aimodelsN.getChildren("multiplayer")) {
-			var contact = m.getNode("refuel/contact").getBoolValue();
-			var tanker = m.getNode("tanker").getBoolValue();
+			var contact = m.getNode("refuel/contact", 1).getBoolValue();
+			var tanker = m.getNode("tanker", 1).getBoolValue();
 			#var id = m.getNode("id").getValue();
 			#print("mp '", id, "'  contact=", contact, "  tanker=", tanker);
 
