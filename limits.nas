@@ -55,7 +55,7 @@ checkFlaps = func {
 
 checkGear = func {
   airspeed = getprop("velocities/airspeed-kt");
-  max_gear = cmdarg().getValue();
+  max_gear = getprop("limits/max-gear-extension-speed");
 
   if ((max_gear != nil) and (airspeed > max_gear))
   {
