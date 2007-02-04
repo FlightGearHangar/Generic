@@ -47,31 +47,23 @@ update_loop = func {
 	# check for contact with tanker aircraft
 	var tankers = [];
 	if (ai_enabled) {
-		foreach (a; aimodelsN.getChildren("aircraft")) {
-			var contact = a.getNode("refuel/contact", 1).getBoolValue();
-			var tanker = a.getNode("tanker", 1).getBoolValue();
-			#var id = a.getNode("id").getValue();
-			#print("ai '", id, "'  contact=", contact, "  tanker=", tanker);
+		var ac = aimodelsN.getChildren("aircraft");
+		foreach (var mp; aimodelsN.getChildren("multiplayer")) {
+			append(ac, mp);
+		}
 
-			if (tanker and contact) {
+		foreach (var a; ac) {
+			var contact = a.getNode("refuel/contact", 1).getValue();
+			var tanker = a.getNode("tanker", 1).getValue();
+
+			if (tanker != nil and contact != nil and tanker and contact) {
 				append(tankers, a);
 			}
 		}
-
-		foreach (m; aimodelsN.getChildren("multiplayer")) {
-			var contact = m.getNode("refuel/contact", 1).getBoolValue();
-			var tanker = m.getNode("tanker", 1).getBoolValue();
-			#var id = m.getNode("id").getValue();
-			#print("mp '", id, "'  contact=", contact, "  tanker=", tanker);
-
-			if (tanker and contact) {
-				append(tankers, m);
-			}
-		}
 	}
-	var refueling = size(tankers) >= 1;
-	refuelingN.setBoolValue(refueling);
 
+	var refueling = size(tankers) > 0;
+	refuelingN.setBoolValue(refueling);
 
 	if (fuel_freeze) {
 		return settimer(update_loop, UPDATE_PERIOD);
@@ -107,68 +99,66 @@ update_loop = func {
 
 
 	var out_of_fuel = 0;
-	if (size(selected_tanks) == 0) {
+	if (size(selected_tanks) == 0 or !consumed) {
 		out_of_fuel = 1;
 
-	} else {
-		if (consumed >= 0) {
-			var fuelPerTank = consumed / size(selected_tanks);
-			foreach (var t; selected_tanks) {
-				var ppg = t.getNode("density-ppg").getValue();
-				var lbs = t.getNode("level-gal_us").getValue() * ppg;
-				lbs -= fuelPerTank;
+	} elsif (consumed > 0) {
+		var fuel_per_tank = consumed / size(selected_tanks);
+		foreach (var t; selected_tanks) {
+			var ppg = t.getNode("density-ppg").getValue();
+			var lbs = t.getNode("level-gal_us").getValue() * ppg;
+			lbs -= fuel_per_tank;
 
-				if (lbs < 0) {
-					lbs = 0;
-					# Kill the engines if we're told to, otherwise simply
-					# deselect the tank.
-					if (t.getNode("kill-when-empty", 1).getBoolValue()) {
-						out_of_fuel = 1;
-					} else {
-						t.getNode("selected", 1).setBoolValue(0);
-					}
+			if (lbs < 0) {
+				lbs = 0;
+				# Kill the engines if we're told to, otherwise simply
+				# deselect the tank.
+				if (t.getNode("kill-when-empty", 1).getBoolValue()) {
+					out_of_fuel = 1;
+				} else {
+					t.getNode("selected", 1).setBoolValue(0);
 				}
-
-				var gals = lbs / ppg;
-				t.getNode("level-gal_us").setDoubleValue(gals);
-				t.getNode("level-lbs").setDoubleValue(lbs);
 			}
 
-		} elsif (consumed < 0) {
-			#find the number of tanks which can accept fuel
-			var available = 0;
+			var gals = lbs / ppg;
+			t.getNode("level-gal_us").setDoubleValue(gals);
+			t.getNode("level-lbs").setDoubleValue(lbs);
+		}
 
+	} elsif (consumed < 0) {
+		#find the number of tanks which can accept fuel
+		var available = 0;
+
+		foreach (var t; selected_tanks) {
+			var ppg = t.getNode("density-ppg").getValue();
+			var capacity = t.getNode("capacity-gal_us").getValue() * ppg;
+			var lbs = t.getNode("level-gal_us").getValue() * ppg;
+
+			if (lbs < capacity) {
+				available += 1;
+			}
+		}
+
+		if (available > 0) {
+			var fuel_per_tank = consumed / available;
+
+			# add fuel to each available tank
 			foreach (var t; selected_tanks) {
 				var ppg = t.getNode("density-ppg").getValue();
 				var capacity = t.getNode("capacity-gal_us").getValue() * ppg;
 				var lbs = t.getNode("level-gal_us").getValue() * ppg;
 
-				if (lbs < capacity) {
-					available += 1;
-				}
-			}
-
-			if (available > 0) {
-				var fuelPerTank = consumed / available;
-
-				# add fuel to each available tank
-				foreach (var t; selected_tanks) {
-					var ppg = t.getNode("density-ppg").getValue();
-					var capacity = t.getNode("capacity-gal_us").getValue() * ppg;
-					var lbs = t.getNode("level-gal_us").getValue() * ppg;
-
-					if (capacity - lbs >= fuelPerTank) {
-						lbs -= fuelPerTank;
-					} elsif (capacity - lbs < fuelPerTank) {
-						lbs = capacity;
-					}
-
-					t.getNode("level-gal_us").setDoubleValue(lbs / ppg);
-					t.getNode("level-lbs").setDoubleValue(lbs);
+				if (capacity - lbs >= fuel_per_tank) {
+					lbs -= fuel_per_tank;
+				} elsif (capacity - lbs < fuel_per_tank) {
+					lbs = capacity;
 				}
 
-				# print ("available ", available , " fuelPerTank " , fuelPerTank);
+				t.getNode("level-gal_us").setDoubleValue(lbs / ppg);
+				t.getNode("level-lbs").setDoubleValue(lbs);
 			}
+
+			# print ("available ", available , " fuel_per_tank " , fuel_per_tank);
 		}
 	}
 
@@ -196,7 +186,7 @@ update_loop = func {
 
 setlistener("/sim/signals/fdm-initialized", func {
 	if (contains(globals, "fuel") and typeof(fuel) == "hash") {
-		fuel.loop = func {};	# kill $FG_ROOT/Nasal/fuel.nas' loop
+		fuel.loop = func {}	# kill $FG_ROOT/Nasal/fuel.nas' loop
 	}
 
 	refuelingN = props.globals.getNode("/systems/refuel/contact", 1);
