@@ -79,17 +79,20 @@ update_loop = func {
 
 
 	# sum up consumed fuel
-	var total = 0;
+	var consumed = 0;
 	foreach (var e; engines) {
-		total += e.getNode("fuel-consumed-lbs").getValue();
+		var fuel = e.getNode("fuel-consumed-lbs");
+		consumed += fuel.getValue();
+		fuel.setDoubleValue(0);
 	}
+
 
 
 	# calculate fuel received
 	if (refueling) {
 		# assume max flow rate is 6000 lbs/min (for KC135)
 		var received = 100 * UPDATE_PERIOD;
-		total -= received;
+		consumed -= received;
 	}
 
 
@@ -108,8 +111,8 @@ update_loop = func {
 		out_of_fuel = 1;
 
 	} else {
-		if (total >= 0) {
-			var fuelPerTank = total / size(selected_tanks);
+		if (consumed >= 0) {
+			var fuelPerTank = consumed / size(selected_tanks);
 			foreach (var t; selected_tanks) {
 				var ppg = t.getNode("density-ppg").getValue();
 				var lbs = t.getNode("level-gal_us").getValue() * ppg;
@@ -131,7 +134,7 @@ update_loop = func {
 				t.getNode("level-lbs").setDoubleValue(lbs);
 			}
 
-		} elsif (total < 0) {
+		} elsif (consumed < 0) {
 			#find the number of tanks which can accept fuel
 			var available = 0;
 
@@ -146,7 +149,7 @@ update_loop = func {
 			}
 
 			if (available > 0) {
-				var fuelPerTank = total / available;
+				var fuelPerTank = consumed / available;
 
 				# add fuel to each available tank
 				foreach (var t; selected_tanks) {
@@ -192,7 +195,9 @@ update_loop = func {
 
 
 setlistener("/sim/signals/fdm-initialized", func {
-	fuel.updateFuel = func {}	# kill $FG_ROOT/Nasal/fuel.nas' loop
+	if (contains(globals, "fuel") and typeof(fuel) == "hash") {
+		fuel.loop = func {};	# kill $FG_ROOT/Nasal/fuel.nas' loop
+	}
 
 	refuelingN = props.globals.getNode("/systems/refuel/contact", 1);
 	refuelingN.setBoolValue(0);
