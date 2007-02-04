@@ -14,7 +14,7 @@
 # limits/max-positive-g
 # limits/max-negative-g (must be defined in max-positive-g defined)
 #
-# You can defined multiple max-flap-extension-speed entries, for max extension
+# You can define multiple max-flap-extension-speed entries for max extension
 # speeds for different flap settings.
 
 checkFlaps = func {
