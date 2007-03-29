@@ -23,7 +23,7 @@ var aimodelsN = nil;
 
 
 # initialize property if it doesn't exist, and set node type otherwise
-init_prop = func(node, prop, val, type = "double") {
+var init_prop = func(node, prop, val, type = "double") {
 	var n = node.getNode(prop);
 	if (n != nil) {
 		var v = n.getValue();
@@ -43,7 +43,7 @@ init_prop = func(node, prop, val, type = "double") {
 
 
 
-update_loop = func {
+var update_loop = func {
 	# check for contact with tanker aircraft
 	var tankers = [];
 	if (ai_enabled) {
@@ -56,7 +56,7 @@ update_loop = func {
 			var contact = a.getNode("refuel/contact", 1).getValue();
 			var tanker = a.getNode("tanker", 1).getValue();
 
-			if (tanker != nil and contact != nil and tanker and contact) {
+			if (tanker and contact) {
 				append(tankers, a);
 			}
 		}
@@ -99,10 +99,10 @@ update_loop = func {
 
 
 	var out_of_fuel = 0;
-	if (size(selected_tanks) == 0 or !consumed) {
+	if (size(selected_tanks) == 0) {
 		out_of_fuel = 1;
 
-	} elsif (consumed > 0) {
+	} elsif (consumed >= 0) {
 		var fuel_per_tank = consumed / size(selected_tanks);
 		foreach (var t; selected_tanks) {
 			var ppg = t.getNode("density-ppg").getValue();
