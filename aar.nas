@@ -125,7 +125,7 @@ var update_loop = func {
 			t.getNode("level-lbs").setDoubleValue(lbs);
 		}
 
-	} elsif (consumed < 0) {
+	} else {
 		#find the number of tanks which can accept fuel
 		var available = 0;
 
@@ -140,7 +140,7 @@ var update_loop = func {
 		}
 
 		if (available > 0) {
-			var fuel_per_tank = consumed / available;
+			var fuel_per_tank = -consumed / available;
 
 			# add fuel to each available tank
 			foreach (var t; selected_tanks) {
@@ -148,9 +148,8 @@ var update_loop = func {
 				var capacity = t.getNode("capacity-gal_us").getValue() * ppg;
 				var lbs = t.getNode("level-gal_us").getValue() * ppg;
 
-				if (capacity - lbs >= fuel_per_tank) {
-					lbs -= fuel_per_tank;
-				} elsif (capacity - lbs < fuel_per_tank) {
+				lbs += fuel_per_tank;
+				if (lbs > capacity) {
 					lbs = capacity;
 				}
 
