@@ -48,11 +48,9 @@ var update_loop = func {
 	var tankers = [];
 	if (ai_enabled) {
 		var ac = aimodelsN.getChildren("aircraft");
-		foreach (var mp; aimodelsN.getChildren("multiplayer")) {
-			append(ac, mp);
-		}
+		var mp = aimodelsN.getChildren("multiplayer");
 
-		foreach (var a; ac) {
+		foreach (var a; ac ~ mp) {
 			var contact = a.getNode("refuel/contact", 1).getValue();
 			var tanker = a.getNode("tanker", 1).getValue();
 
