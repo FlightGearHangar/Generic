@@ -16,6 +16,7 @@
   <static>
     <name>static</name>
     <number>0</number>
+    <tau>1</tau>
   </static>
 
   <vacuum>

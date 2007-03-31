@@ -41,6 +41,8 @@ file, these values will be used (they are hardcoded).
     <name>altimeter</name>
     <number>0</number>
     <static-pressure>/systems/static/pressure-inhg</static-pressure>
+    <quantum>0</quantum>
+    <tau>0</tau>
   </altimeter>
 
   <attitude-indicator>
@@ -59,11 +61,13 @@ file, these values will be used (they are hardcoded).
     <number>0</number>
   </dme>
 
-  <encoder>
+  <altimeter>
     <name>encoder</name>
     <number>0</number>
     <static-pressure>/systems/static/pressure-inhg</static-pressure>
-  </encoder>
+    <quantum>10</quantum>
+    <tau>0.1</tau>
+  </altimeter>
 
   <marker-beacon>
     <name>marker-beacon</name>

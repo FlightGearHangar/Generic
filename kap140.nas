@@ -17,6 +17,7 @@ settings = "/autopilot/KAP140/settings";
 annunciators = "/autopilot/KAP140/annunciators";
 internal = "/autopilot/internal";
 power="/systems/electrical/outputs/autopilot";
+encoder =  "/instrumentation/encoder";
 
 # locks
 propLocks = props.globals.getNode(locks, 1);
@@ -80,7 +81,6 @@ annunciatorAp           = propAnnunciators.getNode("ap", 1);
 annunciatorBeep         = propAnnunciators.getNode("beep", 1);
 
 navRadio = "/instrumentation/nav";
-encoder =  "/instrumentation/encoder";
 staticPort = "/systems/static";
 
 annunciator = annunciatorAp;
@@ -106,6 +106,8 @@ altCaptured = 0;
 valueTest = 0;
 lastValue = 0;
 newValue = 0;
+baroOffset = 0.0;
+baroChange = 1;
 minVoltageLimit = 8.0;
 
 flasher = func {
@@ -265,7 +267,6 @@ apInit = func {
 #  settimer(altAlert, 5.0);
 }
 
-
 apPower = func {
 
 ## Monitor autopilot power
@@ -279,7 +280,7 @@ apPower = func {
 
   valueTest = newValue - lastValue;
 #  print("v_test = ", v_test);
-  if (valueTest > 0.5){
+  if (valueTest > 0.5) {
     # autopilot just powered up
     print("power up");
     apInit();
@@ -1356,6 +1357,7 @@ baroButtonPress = func {
     if (baroSettingUnit == pressureUnits["inHg"])
     {
       settingBaroSettingInhg.setDoubleValue(baroSettingInhg);
+      baroChange = 1;
 
       annunciatorBsInhgNumber.setBoolValue(1);
       annunciatorBsHpaNumber.setBoolValue(0);
@@ -1388,14 +1390,23 @@ pow = func {
 
 
 pressureToHeight = func {
-  p0 = arg[1];    # [Pa]
-  p = arg[0];     # [Pa]
-  t0 = 288.15;    # [K]
-  LR = -0.0065;    # [K/m]
-  g = -9.80665;    # [m/s²]
-  Rd = 287.05307; # [J/kg K]
+#
+#   kollsman shift due to baroSettingInhg =
+#       baroOffset = pressureToHeight(baroSettingInhg, 29.921260)
+#
+  p0 = arg[1];    # [Pa] or (p0 and p need to have the same units)
+  p = arg[0];     # [Pa] or (p0 and p need to have the same units)
+  t0 = 288.15;    # [K]       same as in atmosphere.?xx
+  LR = -0.0065;   # [K/m]     same as in atmosphere.?xx
+  g = -9.80665;   # [m/s²]    same as in atmosphere.?xx
+  Rd = 287.05307; # [J/kg K]  same as in atmosphere.?xx to 8 places
+  ftTom = 0.3048;
+  coefficient = t0/LR/ftTom;
+#  coefficient = -145442.156;
+  exponent = Rd*LR/g;
+#  exponent = 0.1902632365;
 
-  z = -(t0/LR) * (1.0-pow((p/p0),((Rd*LR)/g)));
+  z = -coefficient * (1.0-pow((p/p0),exponent));
   return z;
 }
 
@@ -1412,30 +1423,20 @@ heightToPressure = func {
   return p;
 }
 
-hPartial = func {
-  p0 = arg[1];    # Units of p0 must match units of delta p
-  p = arg[0];     # Units of p must match units of delta p
-  t0 = 288.15;    # [K]
-  LR = -0.0065;    # [K/m]
-  g = -9.80665;    # [m/s²]
-  Rd = 287.05307; # [J/kg K]
-  gamma = (Rd*LR)/g;
-
-  z = -(t0/LR)*gamma*pow((p/p0),gamma)/p0;
-  return z;
-}
-
 altAlert = func {
   #print("alt alert");
 #  Disable button if too little power
   if (getprop(power) < minVoltageLimit) { return; }
 
   pressureAltitude = getprop(encoder, "pressure-alt-ft");
-  altPressure = getprop(staticPort, "pressure-inhg");
-  hPartStat = hPartial(altPressure, 29.92) / 0.3048006;
-  altFt = pressureAltitude + hPartStat * (baroSettingInhg - 29.92);
+
+  if (baroChange) {
+    baroOffset = pressureToHeight(baroSettingInhg, 29.921260);
+    baroChange = 0;
+  }
+
+  altFt = pressureAltitude - baroOffset;
   altDifference = abs(altPreselect - altFt);
-  #print(altDifference);
 
   if (altDifference > 1000)
   {
@@ -1506,6 +1507,7 @@ knobSmallUp = func {
       baroSettingHpa = baroSettingInhg * 0.03386389;
 
       settingBaroSettingInhg.setDoubleValue(baroSettingInhg);
+      baroChange = 1;
     }
     elsif (baroSettingUnit == pressureUnits["hPa"])
     {
@@ -1555,6 +1557,7 @@ knobLargeUp = func {
       baroSettingHpa = baroSettingInhg * 0.03386389;
 
       settingBaroSettingInhg.setDoubleValue(baroSettingInhg);
+      baroChange = 1;
     }
     elsif (baroSettingUnit == pressureUnits["hPa"])
     {
@@ -1604,6 +1607,7 @@ knobSmallDown = func {
       baroSettingHpa = baroSettingInhg * 0.03386389;
 
       settingBaroSettingInhg.setDoubleValue(baroSettingInhg);
+      baroChange = 1;
     }
     elsif (baroSettingUnit == pressureUnits["hPa"])
     {
@@ -1653,6 +1657,7 @@ knobLargeDown = func {
       baroSettingHpa = baroSettingInhg * 0.03386389;
 
       settingBaroSettingInhg.setDoubleValue(baroSettingInhg);
+      baroChange = 1;
     }
     elsif (baroSettingUnit == pressureUnits["hPa"])
     {
