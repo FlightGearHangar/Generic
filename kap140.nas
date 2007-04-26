@@ -18,6 +18,7 @@ annunciators = "/autopilot/KAP140/annunciators";
 internal = "/autopilot/internal";
 power="/systems/electrical/outputs/autopilot";
 encoder =  "/instrumentation/encoder";
+flightControls = "/controls/flight";
 
 # locks
 propLocks = props.globals.getNode(locks, 1);
@@ -51,6 +52,7 @@ settingTargetTurnRate       = propSettings.getNode("target-turn-rate", 1);
 settingTargetAltFt          = propSettings.getNode("target-alt-ft", 1);
 settingBaroSettingInhg      = propSettings.getNode("baro-setting-inhg", 1);
 settingBaroSettingHpa       = propSettings.getNode("baro-setting-hpa", 1);
+settingAutoPitchTrim        = propSettings.getNode("auto-pitch-trim", 1);
 
 #annunciators
 propAnnunciators = props.globals.getNode(annunciators, 1);
@@ -80,14 +82,21 @@ annunciatorBsInhgNumber = propAnnunciators.getNode("bs-inhg-number", 1);
 annunciatorAp           = propAnnunciators.getNode("ap", 1);
 annunciatorBeep         = propAnnunciators.getNode("beep", 1);
 
-navRadio = "/instrumentation/nav";
-staticPort = "/systems/static";
+#flashers
+altAlertBeeper  = aircraft.light.new(annunciatorBeep, [0.5, 0.25]).switch(0);
+altAlertFlasher = aircraft.light.new(annunciatorAltAlert, [0.5, 0.25]).switch(0);
+hdgFlasher      = aircraft.light.new(annunciatorHdg, [0.5, 0.25]).switch(0);
+apFlasher       = aircraft.light.new(annunciatorAp, [1.0, 0.5]).switch(0);
 
-annunciator = annunciatorAp;
-annunciatorState = 0;
-flashInterval = 0.0;
-flashCount = 0.0;
-flashTimer = -1.0;
+#Flight controls
+propFlightControls = props.globals.getNode(flightControls, 0);
+
+elevatorControl         = propFlightControls.getNode("elevator", 0);
+elevatorTrimControl     = propFlightControls.getNode("elevator-trim", 0);
+
+headingNeedleDeflection = "/instrumentation/nav/heading-needle-deflection";
+gsNeedleDeflection = "/instrumentation/nav/gs-needle-deflection";
+staticPressure = "systems/static/pressure-inhg";
 
 pressureUnits = { "inHg" : 0, "hPa" : 1 };
 baroSettingUnit = pressureUnits["inHg"];
@@ -102,6 +111,7 @@ altButtonTimerRunning = 0;
 altButtonTimerIgnore = 0;
 altAlertOn = 0;
 altCaptured = 0;
+altDifference = 0.0;
 
 valueTest = 0;
 lastValue = 0;
@@ -109,55 +119,6 @@ newValue = 0;
 baroOffset = 0.0;
 baroChange = 1;
 minVoltageLimit = 8.0;
-
-flasher = func {
-  flashTimer = -1.0;
-  annunciator = arg[0];
-  flashInterval = arg[1];
-  flashCount = arg[2] + 1;
-  annunciatorState = arg[3];
-
-  flashTimer = 0.0;
-
-  flashAnnunciator();
-}
-
-flashAnnunciator = func {
-  #print(annunciator.getName());
-  #print("FI:", flashInterval);
-  #print("FC:", flashCount);
-  #print("FT:", flashTimer);
-
-  ##
-  # If flashTimer is set to -1 then flashing is aborted
-  if (flashTimer < -0.5)
-  {
-    ##print ("flash abort ", annunciator);
-    annunciator.setBoolValue(0);
-    return;
-  }
-
-  if (flashTimer < flashCount)
-  {
-    #flashTimer = flashTimer + 1.0;
-    if (annunciator.getValue() == 1)
-    {
-      annunciator.setBoolValue(0);
-      settimer(flashAnnunciator, flashInterval / 2.0);
-    }
-    else
-    {
-      flashTimer = flashTimer + 1.0;
-      annunciator.setBoolValue(1);
-      settimer(flashAnnunciator, flashInterval);
-    }
-  }
-  else
-  {
-    flashTimer = -1.0;
-    annunciator.setBoolValue(annunciatorState);
-  }
-}
 
 
 ptCheck = func {
@@ -172,11 +133,9 @@ ptCheck = func {
 
   else
   {
-    elevatorControl = getprop("/controls/flight/elevator");
-    ##print(elevatorControl);
-
+    autoPitchTrim = settingAutoPitchTrim.getValue();
     # Flash the pitch trim up annunciator
-    if (elevatorControl < -0.01)
+    if (elevatorControl.getValue() < -0.01)
     {
       if (annunciatorPtUp.getValue() == 0)
       {
@@ -186,9 +145,16 @@ ptCheck = func {
       {
         annunciatorPtUp.setBoolValue(0);
       }
+      annunciatorPtDn.setBoolValue(0);
+      # Automatic pitch trim
+      if (autoPitchTrim == 1)
+      {
+        elevatorTrimControl.setDoubleValue(
+          elevatorTrimControl.getValue() - 0.001);
+      }
     }
     # Flash the pitch trim down annunciator
-    elsif (elevatorControl > 0.01)
+    elsif (elevatorControl.getValue() > 0.01)
     {
       if (annunciatorPtDn.getValue() == 0)
       {
@@ -197,6 +163,13 @@ ptCheck = func {
       elsif (annunciatorPtDn.getValue() == 1)
       {
         annunciatorPtDn.setBoolValue(0);
+      }
+      annunciatorPtUp.setBoolValue(0);
+      # Automatic pitch trim
+      if (autoPitchTrim == 1)
+      {
+        elevatorTrimControl.setDoubleValue(
+          elevatorTrimControl.getValue() + 0.001);
       }
     }
 
@@ -233,8 +206,7 @@ apInit = func {
 #  Reset the memory for power down or power up
   altPreselect = 0;
   baroSettingInhg = 29.92;
-  settingBaroSettingInhg.setDoubleValue(baroSettingInhg);
-  settingBaroSettingHpa.setDoubleValue(baroSettingInhg * 0.03386389);
+  adjustBaroSettingInhg(0.0);
   settingTargetAltFt.setDoubleValue(altPreselect);
   settingTargetAltPressure.setDoubleValue(0.0);
   settingTargetInterceptAngle.setDoubleValue(0.0);
@@ -242,7 +214,7 @@ apInit = func {
   settingTargetTurnRate.setDoubleValue(0.0);
 
   annunciatorRol.setBoolValue(0);
-  annunciatorHdg.setBoolValue(0);
+  annunciatorHdg.getNode("state").setBoolValue(0);
   annunciatorNav.setBoolValue(0);
   annunciatorNavArm.setBoolValue(0);
   annunciatorApr.setBoolValue(0);
@@ -261,7 +233,7 @@ apInit = func {
   annunciatorPtDn.setBoolValue(0);
   annunciatorBsHpaNumber.setBoolValue(0);
   annunciatorBsInhgNumber.setBoolValue(0);
-  annunciatorAp.setBoolValue(0);
+  annunciatorAp.getNode("state").setBoolValue(0);
   annunciatorBeep.setBoolValue(0);
 
 #  settimer(altAlert, 5.0);
@@ -289,7 +261,8 @@ apPower = func {
     # autopilot just lost power
     print("power lost");
     apInit();
-    annunciatorAltAlert.setBoolValue(0);
+    annunciatorAltAlert.getNode("state").setBoolValue(0);
+    annunciatorBeep.getNode("state").setBoolValue(0);
     # note: all button and knobs disabled in functions below
   }
   lastValue = newValue;
@@ -308,7 +281,6 @@ apButton = func {
   if (lockRollMode.getValue() == rollModes["OFF"] and
       lockPitchMode.getValue() == pitchModes["OFF"])
   {
-    flashTimer = -1.0;
 
     lockAltHold.setBoolValue(0);
     lockAprHold.setBoolValue(0);
@@ -361,7 +333,6 @@ apButton = func {
   elsif (lockRollMode.getValue() != rollModes["OFF"] and
          lockPitchMode.getValue() != pitchModes["OFF"])
   {
-    flashTimer = -1.0;
 
     lockAltHold.setBoolValue(0);
     lockAprHold.setBoolValue(0);
@@ -382,7 +353,7 @@ apButton = func {
     settingTargetTurnRate.setDoubleValue(0.0);
 
     annunciatorRol.setBoolValue(0);
-    annunciatorHdg.setBoolValue(0);
+    annunciatorHdg.getNode("state").setBoolValue(0);
     annunciatorNav.setBoolValue(0);
     annunciatorNavArm.setBoolValue(0);
     annunciatorApr.setBoolValue(0);
@@ -400,7 +371,7 @@ apButton = func {
     annunciatorPtUp.setBoolValue(0);
     annunciatorPtDn.setBoolValue(0);
 
-    flasher(annunciatorAp, 1.0, 5, 0);
+    apFlasher.blink(5).switch(0).switch(1);
   }
 }
 
@@ -418,8 +389,6 @@ hdgButton = func {
   if (lockRollMode.getValue() == rollModes["OFF"] and
       lockPitchMode.getValue() == pitchModes["OFF"])
   {
-    flashTimer = -1.0;
-
     lockAltHold.setBoolValue(0);
     lockAprHold.setBoolValue(0);
     lockRevHold.setBoolValue(0);
@@ -433,7 +402,7 @@ hdgButton = func {
     lockRollArm.setIntValue(rollArmModes["OFF"]);
     lockPitchArm.setIntValue(pitchArmModes["OFF"]);
 
-    annunciatorHdg.setBoolValue(1);
+    annunciatorHdg.getNode("state").setBoolValue(1);
     annunciatorAlt.setBoolValue(0);
     annunciatorApr.setBoolValue(0);
     annunciatorGs.setBoolValue(0);
@@ -484,7 +453,7 @@ hdgButton = func {
 
     annunciatorApr.setBoolValue(0);
     annunciatorGs.setBoolValue(0);
-    annunciatorHdg.setBoolValue(1);
+    annunciatorHdg.getNode("state").setBoolValue(1);
     annunciatorNav.setBoolValue(0);
     annunciatorRol.setBoolValue(0);
     annunciatorRev.setBoolValue(0);
@@ -498,7 +467,7 @@ hdgButton = func {
          lockRollArm.getValue() == rollArmModes["NAV"] or
          lockRollMode.getValue() == rollModes["REV"] or
          lockRollArm.getValue() == rollArmModes["REV"]) and
-         flashTimer < -0.5)
+         !hdgFlasher.count)
   {
     lockAprHold.setBoolValue(0);
     lockRevHold.setBoolValue(0);
@@ -511,7 +480,7 @@ hdgButton = func {
 
     annunciatorApr.setBoolValue(0);
     annunciatorGs.setBoolValue(0);
-    annunciatorHdg.setBoolValue(1);
+    annunciatorHdg.getNode("state").setBoolValue(1);
     annunciatorNav.setBoolValue(0);
     annunciatorRol.setBoolValue(0);
     annunciatorRev.setBoolValue(0);
@@ -535,7 +504,7 @@ hdgButton = func {
 
     annunciatorApr.setBoolValue(0);
     annunciatorGs.setBoolValue(0);
-    annunciatorHdg.setBoolValue(0);
+    annunciatorHdg.getNode("state").setBoolValue(0);
     annunciatorNav.setBoolValue(0);
     annunciatorRol.setBoolValue(1);
 
@@ -549,7 +518,7 @@ hdgButton = func {
          lockRollArm.getValue() == rollArmModes["APR"] or
          lockPitchMode.getValue() == pitchModes["GS"] or
          lockPitchArm.getValue() == pitchArmModes["GS"]) and
-         flashTimer < -0.5)
+         !hdgFlasher.count)
   {
     lockAltHold.setBoolValue(0);
     lockAprHold.setBoolValue(0);
@@ -565,7 +534,7 @@ hdgButton = func {
 
     annunciatorAlt.setBoolValue(0);
     annunciatorAltArm.setBoolValue(0);
-    annunciatorHdg.setBoolValue(1);
+    annunciatorHdg.getNode("state").setBoolValue(1);
     annunciatorRol.setBoolValue(0);
     annunciatorNav.setBoolValue(0);
     annunciatorApr.setBoolValue(0);
@@ -614,7 +583,7 @@ navButton = func {
   ##
   if (lockRollMode.getValue() == rollModes["HDG"])
   {
-    flasher(annunciatorHdg, 0.5, 8, 0);
+    hdgFlasher.blink(8, 1).switch(0).switch(1);
 
     lockAprHold.setBoolValue(0);
     lockGsHold.setBoolValue(0);
@@ -634,7 +603,7 @@ navButton = func {
   ##
   elsif (lockRollMode.getValue() == rollModes["ROL"])
   {
-    flasher(annunciatorHdg, 0.5, 8, 0);
+    hdgFlasher.blink(8).switch(0).switch(1);
 
     lockAprHold.setBoolValue(0);
     lockGsHold.setBoolValue(0);
@@ -672,7 +641,7 @@ navArmFromHdg = func
   ##
   # Wait for the HDG annunciator flashing to finish.
   ##
-  if (flashTimer > -0.5)
+  if (hdgFlasher.count)
   {
     #print("flashing...");
     settimer(navArmFromHdg, 2.5);
@@ -682,7 +651,7 @@ navArmFromHdg = func
   # Activate the nav-hold controller and check the needle deviation.
   ##
   lockNavHold.setBoolValue(1);
-  deviation = getprop(navRadio, "heading-needle-deflection");
+  deviation = getprop(headingNeedleDeflection);
   ##
   # If the deflection is more than 3 degrees wait 5 seconds and check again.
   ##
@@ -701,6 +670,7 @@ navArmFromHdg = func
     #print("capture");
     lockRollArm.setIntValue(rollArmModes["OFF"]);
     annunciatorNavArm.setBoolValue(0);
+    annunciatorHdg.getNode("state").setBoolValue(0);
     annunciatorNav.setBoolValue(1);
   }
 }
@@ -720,7 +690,7 @@ navArmFromRol = func
   # Wait for the HDG annunciator flashing to finish.
   ##
   #annunciatorNavArm.setBoolValue(1);
-  if (flashTimer > -0.5)
+  if (hdgFlasher.count)
   {
     #print("flashing...");
     annunciatorRol.setBoolValue(0);
@@ -733,7 +703,7 @@ navArmFromRol = func
   annunciatorRol.setBoolValue(1);
   lockRollAxis.setBoolValue(1);
   settingTargetTurnRate.setDoubleValue(0.0);
-  deviation = getprop(navRadio, "heading-needle-deflection");
+  deviation = getprop(headingNeedleDeflection);
   ##
   # If the deflection is more than 3 degrees wait 5 seconds and check again.
   ##
@@ -775,7 +745,7 @@ aprButton = func {
   ##
   if (lockRollMode.getValue() == rollModes["HDG"])
   {
-    flasher(annunciatorHdg, 0.5, 8, 0);
+    hdgFlasher.blink(8, 1).switch(0).switch(1);
 
     lockAprHold.setBoolValue(1);
     lockGsHold.setBoolValue(0);
@@ -792,7 +762,7 @@ aprButton = func {
   }
   elsif (lockRollMode.getValue() == rollModes["ROL"])
   {
-    flasher(annunciatorHdg, 0.5, 8, 0);
+    hdgFlasher.blink(8).switch(0).switch(1);
 
     lockAprHold.setBoolValue(0);
     lockGsHold.setBoolValue(0);
@@ -825,7 +795,7 @@ aprArmFromHdg = func
   ##
   # Wait for the HDG annunciator flashing to finish.
   ##
-  if (flashTimer > -0.5)
+  if (hdgFlasher.count)
   {
     #print("flashing...");
     settimer(aprArmFromHdg, 2.5);
@@ -835,7 +805,7 @@ aprArmFromHdg = func
   # Activate the apr-hold controller and check the needle deviation.
   ##
   lockAprHold.setBoolValue(1);
-  deviation = getprop(navRadio, "heading-needle-deflection");
+  deviation = getprop(headingNeedleDeflection);
   ##
   # If the deflection is more than 3 degrees wait 5 seconds and check again.
   ##
@@ -854,6 +824,7 @@ aprArmFromHdg = func
   {
     #print("capture");
     annunciatorAprArm.setBoolValue(0);
+    annunciatorHdg.getNode("state").setBoolValue(0);
     annunciatorApr.setBoolValue(1);
     lockPitchArm.setIntValue(pitchArmModes["GS"]);
 
@@ -877,7 +848,7 @@ aprArmFromRol = func
   ##
   # Wait for the HDG annunciator flashing to finish.
   ##
-  if (flashTimer > -0.5)
+  if (hdgFlasher.count)
   {
     #print("flashing...");
     annunciatorRol.setBoolValue(0);
@@ -890,7 +861,7 @@ aprArmFromRol = func
   annunciatorRol.setBoolValue(1);
   lockRollAxis.setBoolValue(1);
   settingTargetTurnRate.setDoubleValue(0.0);
-  deviation = getprop(navRadio, "heading-needle-deflection");
+  deviation = getprop(headingNeedleDeflection);
   ##
   # If the deflection is more than 3 degrees wait 5 seconds and check again.
   ##
@@ -939,7 +910,7 @@ gsArm = func {
 
   annunciatorGsArm.setBoolValue(1);
 
-  deviation = getprop(navRadio, "gs-needle-deflection");
+  deviation = getprop(gsNeedleDeflection);
   ##
   # If the deflection is more than 1 degrees wait 5 seconds and check again.
   ##
@@ -981,7 +952,7 @@ revButton = func {
   ##
   if (lockRollMode.getValue() == rollModes["HDG"])
   {
-    flasher(annunciatorHdg, 0.5, 8, 0);
+    hdgFlasher.blink(8, 1).switch(0).switch(1);
 
     lockAprHold.setBoolValue(0);
     lockGsHold.setBoolValue(0);
@@ -997,7 +968,7 @@ revButton = func {
   }
   elsif (lockRollMode.getValue() == rollModes["ROL"])
   {
-    flasher(annunciatorHdg, 0.5, 8, 0);
+    hdgFlasher.blink(8).switch(0).switch(1);
 
     lockAprHold.setBoolValue(0);
     lockGsHold.setBoolValue(0);
@@ -1030,7 +1001,7 @@ revArmFromHdg = func
   ##
   # Wait for the HDG annunciator flashing to finish.
   ##
-  if (flashTimer > -0.5)
+  if (hdgFlasher.count)
   {
     #print("flashing...");
     settimer(revArmFromHdg, 2.5);
@@ -1040,7 +1011,7 @@ revArmFromHdg = func
   # Activate the rev-hold controller and check the needle deviation.
   ##
   lockRevHold.setBoolValue(1);
-  deviation = getprop(navRadio, "heading-needle-deflection");
+  deviation = getprop(headingNeedleDeflection);
   ##
   # If the deflection is more than 3 degrees wait 5 seconds and check again.
   ##
@@ -1058,6 +1029,7 @@ revArmFromHdg = func
   {
     #print("capture");
     annunciatorRevArm.setBoolValue(0);
+    annunciatorHdg.getNode("state").setBoolValue(0);
     annunciatorRev.setBoolValue(1);
     lockRollArm.setIntValue(rollArmModes["OFF"]);
     annunciatorRol.setBoolValue(0);
@@ -1092,7 +1064,7 @@ revArmFromRol = func
   ##
   # Wait for the HDG annunciator flashing to finish.
   ##
-  if (flashTimer > -0.5)
+  if (hdgFlasher.count)
   {
     #print("flashing...");
     annunciatorRol.setBoolValue(0);
@@ -1105,7 +1077,7 @@ revArmFromRol = func
   annunciatorRol.setBoolValue(1);
   lockRollAxis.setBoolValue(1);
   settingTargetTurnRate.setDoubleValue(0.0);
-  deviation = getprop(navRadio, "heading-needle-deflection");
+  deviation = getprop(headingNeedleDeflection);
   ##
   # If the deflection is more than 3 degrees wait 5 seconds and check again.
   ##
@@ -1207,21 +1179,8 @@ altButton = func {
     annunciatorVsNumber.setBoolValue(0);
     annunciatorAltNumber.setBoolValue(1);
 
-    altPressure = getprop(staticPort, "pressure-inhg");
-    altFt = (baroSettingInhg - altPressure) / 0.00103;
-    if (altFt > 0.0)
-    {
-      altFt = int(altFt/20 + 0.5) * 20;
-    }
-    else
-    {
-      altFt = int(altFt/20 - 0.5) * 20;
-    }
-    #print(altFt);
-
-    altPressure = baroSettingInhg - altFt * 0.00103;
+    altPressure = getprop(staticPressure);
     settingTargetAltPressure.setDoubleValue(altPressure);
-
   }
 }
 
@@ -1356,17 +1315,11 @@ baroButtonPress = func {
 
     if (baroSettingUnit == pressureUnits["inHg"])
     {
-      settingBaroSettingInhg.setDoubleValue(baroSettingInhg);
-      baroChange = 1;
-
       annunciatorBsInhgNumber.setBoolValue(1);
       annunciatorBsHpaNumber.setBoolValue(0);
     }
     elsif (baroSettingUnit == pressureUnits["hPa"])
     {
-      settingBaroSettingHpa.setDoubleValue(
-              baroSettingInhg * 0.03386389);
-
       annunciatorBsHpaNumber.setBoolValue(1);
       annunciatorBsInhgNumber.setBoolValue(0);
     }
@@ -1383,19 +1336,19 @@ baroButtonRelease = func {
 }
 
 
-pow = func {
-  #print(arg[0],arg[1]);
-  return math.exp(arg[1]*math.ln(arg[0]));
+pow = func(base, exponent) {
+  #print(base,exponent);
+  return math.exp(exponent*math.ln(base));
 }
 
 
-pressureToHeight = func {
+pressureToHeight = func(p, p0) {
 #
 #   kollsman shift due to baroSettingInhg =
 #       baroOffset = pressureToHeight(baroSettingInhg, 29.921260)
 #
-  p0 = arg[1];    # [Pa] or (p0 and p need to have the same units)
-  p = arg[0];     # [Pa] or (p0 and p need to have the same units)
+  #p0 = p0;    # [Pa] or (p0 and p need to have the same units)
+  #p = p;     # [Pa] or (p0 and p need to have the same units)
   t0 = 288.15;    # [K]       same as in atmosphere.?xx
   LR = -0.0065;   # [K/m]     same as in atmosphere.?xx
   g = -9.80665;   # [m/s²]    same as in atmosphere.?xx
@@ -1411,9 +1364,9 @@ pressureToHeight = func {
 }
 
 
-heightToPressure = func {
-  p0 = arg[1];    # [Pa]
-  z = arg[0];     # [m]
+heightToPressure = func(z, p0) {
+  #p0 = p0;    # [Pa]
+  #z = z;     # [m]
   t0 = 288.15;    # [K]
   LR = -0.0065;    # [K/m]
   g = -9.80665;    # [m/s²]
@@ -1436,21 +1389,30 @@ altAlert = func {
   }
 
   altFt = pressureAltitude - baroOffset;
+  prevAltDifference = altDifference;
   altDifference = abs(altPreselect - altFt);
 
   if (altDifference > 1000)
   {
-    annunciatorAltAlert.setBoolValue(0);
+    annunciatorAltAlert.getNode("state").setBoolValue(0);
   }
   elsif (altDifference < 1000 and
          altCaptured == 0)
   {
-    if (flashTimer < -0.5) {
-      annunciatorAltAlert.setBoolValue(1); }
+    if (!altAlertFlasher.count)
+    {
+      annunciatorAltAlert.getNode("state").setBoolValue(1);
+    }
+    if (!altAlertBeeper.count and prevAltDifference > 1000)
+    {
+      altAlertBeeper.blink(5).switch(0).switch(1);
+    }
     if (altDifference < 200)
     {
-      if (flashTimer < -0.5) {
-        annunciatorAltAlert.setBoolValue(0); }
+      if (!altAlertFlasher.count)
+      {
+        annunciatorAltAlert.getNode("state").setBoolValue(0);
+      }
       if (altDifference < 20)
       {
         #print("altCapture()");
@@ -1469,14 +1431,11 @@ altAlert = func {
           annunciatorVsNumber.setBoolValue(0);
           annunciatorAltNumber.setBoolValue(1);
 
-          #altPressure = baroSettingInhg - altPreselect * 0.00103;
-          #altPressure = heightToPressure(altPreselect*0.3048006,
-          #                                baroSettingInhg*3386.389)/3386.389;
-          altPressure = getprop(staticPort, "pressure-inhg");
+          altPressure = getprop(staticPressure);
           settingTargetAltPressure.setDoubleValue(altPressure);
         }
 
-        flasher(annunciatorAltAlert, 1.0, 0, 0);
+        altAlertFlasher.blink(1).switch(0).switch(1);
       }
     }
   }
@@ -1485,13 +1444,35 @@ altAlert = func {
   {
     if (altDifference > 200)
     {
-      flasher(annunciatorAltAlert, 1.0, 5, 1);
+      altAlertFlasher.blink(5, 1).switch(0).switch(1);
+      altAlertBeeper.blink(5).switch(0).switch(1);
       altCaptured = 0;
     }
   }
   settimer(altAlert, 2.0);
 }
 
+adjustBaroSettingInhg = func(amount) {
+  # Adjust baro setting inHg by amount,
+  # and sync baro setting hPa.
+  baroSettingInhg = baroSettingInhg + amount;
+  baroSettingHpa = baroSettingInhg * 0.03386389;
+
+  settingBaroSettingHpa.setDoubleValue(baroSettingHpa);
+  settingBaroSettingInhg.setDoubleValue(baroSettingInhg);
+  baroChange = 1;
+}
+
+adjustbaroSettingHpa = func(amount) {
+  # Adjust baro setting hPa by amount,
+  # and sync baro setting inHg.
+  baroSettingHpa = baroSettingHpa + amount;
+  baroSettingInhg = baroSettingHpa / 0.03386389;
+
+  settingBaroSettingHpa.setDoubleValue(baroSettingHpa);
+  settingBaroSettingInhg.setDoubleValue(baroSettingInhg);
+  baroChange = 1;
+}
 
 knobSmallUp = func {
   #print("knob small up");
@@ -1503,19 +1484,11 @@ knobSmallUp = func {
     baroSettingAdjusting = 1;
     if (baroSettingUnit == pressureUnits["inHg"])
     {
-      baroSettingInhg = baroSettingInhg + 0.01;
-      baroSettingHpa = baroSettingInhg * 0.03386389;
-
-      settingBaroSettingInhg.setDoubleValue(baroSettingInhg);
-      baroChange = 1;
+      adjustBaroSettingInhg(0.01);
     }
     elsif (baroSettingUnit == pressureUnits["hPa"])
     {
-      baroSettingHpa = baroSettingInhg * 0.03386389;
-      baroSettingHpa = baroSettingHpa + 0.001;
-      baroSettingInhg = baroSettingHpa / 0.03386389;
-
-      settingBaroSettingHpa.setDoubleValue(baroSettingHpa);
+      adjustbaroSettingHpa(0.001);
     }
   }
   elsif (baroTimerRunning == 0 and
@@ -1553,19 +1526,11 @@ knobLargeUp = func {
     baroSettingAdjusting = 1;
     if (baroSettingUnit == pressureUnits["inHg"])
     {
-      baroSettingInhg = baroSettingInhg + 1.0;
-      baroSettingHpa = baroSettingInhg * 0.03386389;
-
-      settingBaroSettingInhg.setDoubleValue(baroSettingInhg);
-      baroChange = 1;
+      adjustBaroSettingInhg(1.0);
     }
     elsif (baroSettingUnit == pressureUnits["hPa"])
     {
-      baroSettingHpa = baroSettingInhg * 0.03386389;
-      baroSettingHpa = baroSettingHpa + 0.1;
-      baroSettingInhg = baroSettingHpa / 0.03386389;
-
-      settingBaroSettingHpa.setDoubleValue(baroSettingHpa);
+      adjustbaroSettingHpa(0.1);
     }
   }
   elsif (baroTimerRunning == 0 and
@@ -1603,19 +1568,11 @@ knobSmallDown = func {
     baroSettingAdjusting = 1;
     if (baroSettingUnit == pressureUnits["inHg"])
     {
-      baroSettingInhg = baroSettingInhg - 0.01;
-      baroSettingHpa = baroSettingInhg * 0.03386389;
-
-      settingBaroSettingInhg.setDoubleValue(baroSettingInhg);
-      baroChange = 1;
+      adjustBaroSettingInhg(-0.01);
     }
     elsif (baroSettingUnit == pressureUnits["hPa"])
     {
-      baroSettingHpa = baroSettingInhg * 0.03386389;
-      baroSettingHpa = baroSettingHpa - 0.001;
-      baroSettingInhg = baroSettingHpa / 0.03386389;
-
-      settingBaroSettingHpa.setDoubleValue(baroSettingHpa);
+      adjustbaroSettingHpa(-0.001);
     }
   }
   elsif (baroTimerRunning == 0 and
@@ -1653,19 +1610,11 @@ knobLargeDown = func {
     baroSettingAdjusting = 1;
     if (baroSettingUnit == pressureUnits["inHg"])
     {
-      baroSettingInhg = baroSettingInhg - 1.0;
-      baroSettingHpa = baroSettingInhg * 0.03386389;
-
-      settingBaroSettingInhg.setDoubleValue(baroSettingInhg);
-      baroChange = 1;
+      adjustBaroSettingInhg(-1.0);
     }
     elsif (baroSettingUnit == pressureUnits["hPa"])
     {
-      baroSettingHpa = baroSettingInhg * 0.03386389;
-      baroSettingHpa = baroSettingHpa - 0.1;
-      baroSettingInhg = baroSettingHpa / 0.03386389;
-
-      settingBaroSettingHpa.setDoubleValue(baroSettingHpa);
+      adjustbaroSettingHpa(-0.1);
     }
   }
   elsif (baroTimerRunning == 0 and
