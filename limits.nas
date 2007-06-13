@@ -18,8 +18,11 @@
 # speeds for different flap settings.
 
 checkFlaps = func {
-  airspeed = getprop("velocities/airspeed-kt");
   flapsetting = cmdarg().getValue();
+  if (flapsetting == 0)
+    return;
+
+  airspeed = getprop("velocities/airspeed-kt");
   ltext = "";
 
   limits = props.globals.getNode("limits");
@@ -54,6 +57,9 @@ checkFlaps = func {
 
 
 checkGear = func {
+  if (!cmdarg().getValue())
+    return;
+
   airspeed = getprop("velocities/airspeed-kt");
   max_gear = getprop("limits/max-gear-extension-speed");
 
@@ -85,6 +91,9 @@ updatePilotG = func {
 updatePilotG();
 
 checkGandVNE = func {
+  if (getprop("/sim/freeze/replay-state"))
+    return;
+
   max_positive = getprop("limits/max-positive-g");
   max_negative = getprop("limits/max-negative-g");
   msg = "";
