@@ -13,6 +13,7 @@
 var UPDATE_PERIOD = 0.3;
 
 var enabled = nil;
+var serviceable = nil;
 var fuel_freeze = nil;
 var ai_enabled = nil;
 var engines = nil;
@@ -27,18 +28,16 @@ var init_prop = func(node, prop, val, type = "double") {
 	var n = node.getNode(prop);
 	if (n != nil) {
 		var v = n.getValue();
-		if (v != nil) {
+		if (v != nil)
 			val = v;
-		}
 	}
 	node = node.getNode(prop, 1);
-	if (type == "double") {
+	if (type == "double")
 		node.setDoubleValue(val);
-	} elsif (type == "bool") {
+	elsif (type == "bool")
 		node.setBoolValue(val);
-	} elsif (type == "int") {
+	elsif (type == "int")
 		node.setIntValue(val);
-	}
 }
 
 
@@ -47,25 +46,23 @@ var update_loop = func {
 	# check for contact with tanker aircraft
 	var tankers = [];
 	if (ai_enabled) {
-		var ac = aimodelsN.getChildren("aircraft");
+		var ac = aimodelsN.getChildren("tanker");
 		var mp = aimodelsN.getChildren("multiplayer");
 
 		foreach (var a; ac ~ mp) {
 			var contact = a.getNode("refuel/contact", 1).getValue();
 			var tanker = a.getNode("tanker", 1).getValue();
 
-			if (tanker and contact) {
+			if (tanker and contact)
 				append(tankers, a);
-			}
 		}
 	}
 
-	var refueling = size(tankers) > 0;
+	var refueling = serviceable and size(tankers) > 0;
 	refuelingN.setBoolValue(refueling);
 
-	if (fuel_freeze) {
+	if (fuel_freeze)
 		return settimer(update_loop, UPDATE_PERIOD);
-	}
 
 
 	# sum up consumed fuel
@@ -90,9 +87,8 @@ var update_loop = func {
 	var selected_tanks = [];
 	foreach (var t; tanks) {
 		var cap = t.getNode("capacity-gal_us", 1).getValue();
-		if (cap != nil and cap > 0.01 and t.getNode("selected", 1).getBoolValue()) {
+		if (cap != nil and cap > 0.01 and t.getNode("selected", 1).getBoolValue())
 			append(selected_tanks, t);
-		}
 	}
 
 
@@ -111,11 +107,10 @@ var update_loop = func {
 				lbs = 0;
 				# Kill the engines if we're told to, otherwise simply
 				# deselect the tank.
-				if (t.getNode("kill-when-empty", 1).getBoolValue()) {
+				if (t.getNode("kill-when-empty", 1).getBoolValue())
 					out_of_fuel = 1;
-				} else {
+				else
 					t.getNode("selected", 1).setBoolValue(0);
-				}
 			}
 
 			var gals = lbs / ppg;
@@ -132,9 +127,8 @@ var update_loop = func {
 			var capacity = t.getNode("capacity-gal_us").getValue() * ppg;
 			var lbs = t.getNode("level-gal_us").getValue() * ppg;
 
-			if (lbs < capacity) {
+			if (lbs < capacity)
 				available += 1;
-			}
 		}
 
 		if (available > 0) {
@@ -147,9 +141,8 @@ var update_loop = func {
 				var lbs = t.getNode("level-gal_us").getValue() * ppg;
 
 				lbs += fuel_per_tank;
-				if (lbs > capacity) {
+				if (lbs > capacity)
 					lbs = capacity;
-				}
 
 				t.getNode("level-gal_us").setDoubleValue(lbs / ppg);
 				t.getNode("level-lbs").setDoubleValue(lbs);
@@ -173,18 +166,17 @@ var update_loop = func {
 	setprop("/consumables/fuel/total-fuel-lbs", lbs);
 	setprop("/consumables/fuel/total-fuel-norm", gals / cap);
 
-	foreach (var e; engines) {
+	foreach (var e; engines)
 		e.getNode("out-of-fuel", 1).setBoolValue(out_of_fuel);
-	}
+
 	settimer(update_loop, UPDATE_PERIOD);
 }
 
 
 
 setlistener("/sim/signals/fdm-initialized", func {
-	if (contains(globals, "fuel") and typeof(fuel) == "hash") {
+	if (contains(globals, "fuel") and typeof(fuel) == "hash")
 		fuel.loop = func {}	# kill $FG_ROOT/Nasal/fuel.nas' loop
-	}
 
 	refuelingN = props.globals.getNode("/systems/refuel/contact", 1);
 	refuelingN.setBoolValue(0);
@@ -208,6 +200,7 @@ setlistener("/sim/signals/fdm-initialized", func {
 
 	setlistener("sim/freeze/fuel", func { fuel_freeze = cmdarg().getBoolValue() }, 1);
 	setlistener("sim/ai/enabled", func { ai_enabled = cmdarg().getBoolValue() }, 1);
+	setlistener("systems/refuel/serviceable", func { serviceable = cmdarg().getBoolValue() }, 1);
 	update_loop();
 });
 
