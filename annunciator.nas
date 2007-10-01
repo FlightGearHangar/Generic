@@ -4,16 +4,16 @@ var VACUUM_THRESHOLD = 3.0;
 var OIL_PRESSURE_THRESHOLD = 20.0;
 
 
-init_prop = func(prop, default = 0) {
+var init_prop = func(prop, default = 0) {
 	var n = props.globals.getNode(prop, 1);
-	if (n.getType() == "NONE") {
+	if (n.getType() == "NONE")
 		n.setDoubleValue(default);
-	}
+
 	return n;
 }
 
 
-ann = {
+var ann = {
 	new : func(p) {
 		var m = { parents : [ann] };
 		m.node = props.globals.getNode(p, 1);
@@ -28,11 +28,10 @@ ann = {
 				me.stamp = sec + 10;
 				me.state = 1;
 			}
-			if (sec < me.stamp) {
+			if (sec < me.stamp)
 				me.node.setBoolValue(clock);
-			} else {
+			else
 				me.node.setBoolValue(1);
-			}
 		} else {
 			me.state or return;
 			me.node.setBoolValue(me.state = 0);
@@ -61,7 +60,7 @@ var ann_oil_px = ann.new("/instrumentation/annunciator/oil-pressure");
 var clock = 0;
 var sec = nil;
 
-main = func {
+var main = func {
 	clock = !clock;
 	sec = elapsed.getValue();
 
