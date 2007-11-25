@@ -18,90 +18,92 @@
 
 # Properties
 
-locks = "/autopilot/CENTURYIII/locks";
-settings = "/autopilot/CENTURYIII/settings";
-internal = "/autopilot/internal";
-flightControls = "/controls/flight";
-autopilotControls = "/autopilot/CENTURYIII/controls";
+var locks = "/autopilot/CENTURYIII/locks";
+var settings = "/autopilot/CENTURYIII/settings";
+var internal = "/autopilot/internal";
+var flightControls = "/controls/flight";
+var autopilotControls = "/autopilot/CENTURYIII/controls";
 
 # locks
-propLocks = props.globals.getNode(locks, 1);
+var propLocks = props.globals.getNode(locks, 1);
 
-lockAltHold   = propLocks.getNode("alt-hold", 1);
-lockPitchHold = propLocks.getNode("pitch-hold", 1);
-lockAprHold   = propLocks.getNode("apr-hold", 1);
-lockGsHold    = propLocks.getNode("gs-hold", 1);
-lockHdgHold   = propLocks.getNode("hdg-hold", 1);
-lockNavHold   = propLocks.getNode("nav-hold", 1);
-lockOmniHold  = propLocks.getNode("omni-hold", 1);
-lockRevHold   = propLocks.getNode("rev-hold", 1);
-lockRollAxis  = propLocks.getNode("roll-axis", 1);
-lockRollMode  = propLocks.getNode("roll-mode", 1);
-lockPitchAxis = propLocks.getNode("pitch-axis", 1);
-lockPitchMode = propLocks.getNode("pitch-mode", 1);
-lockRollArm   = propLocks.getNode("roll-arm", 1);
-lockPitchArm  = propLocks.getNode("pitch-arm", 1);
+var lockAltHold   = propLocks.getNode("alt-hold", 1);
+var lockPitchHold = propLocks.getNode("pitch-hold", 1);
+var lockAprHold   = propLocks.getNode("apr-hold", 1);
+var lockGsHold    = propLocks.getNode("gs-hold", 1);
+var lockHdgHold   = propLocks.getNode("hdg-hold", 1);
+var lockNavHold   = propLocks.getNode("nav-hold", 1);
+var lockOmniHold  = propLocks.getNode("omni-hold", 1);
+var lockRevHold   = propLocks.getNode("rev-hold", 1);
+var lockRollAxis  = propLocks.getNode("roll-axis", 1);
+var lockRollMode  = propLocks.getNode("roll-mode", 1);
+var lockPitchAxis = propLocks.getNode("pitch-axis", 1);
+var lockPitchMode = propLocks.getNode("pitch-mode", 1);
+var lockRollArm   = propLocks.getNode("roll-arm", 1);
+var lockPitchArm  = propLocks.getNode("pitch-arm", 1);
 
 
-rollModes     = { "OFF" : 0, "ROL" : 1, "HDG" : 2, "OMNI" : 3, "NAV" : 4, "REV" : 5, "APR" : 6 };
-pitchModes    = { "OFF" : 0, "VS" : 1, "ALT" : 2, "GS" : 3, "AOA" : 4 };
-rollArmModes  = { "OFF" : 0, "NAV" : 1, "OMNI" : 2, "APR" : 3, "REV" : 4 };
-pitchArmModes = { "OFF" : 0, "ALT" : 1, "GS" : 2 };
+var rollModes     = { "OFF" : 0, "ROL" : 1, "HDG" : 2, "OMNI" : 3, "NAV" : 4, "REV" : 5, "APR" : 6 };
+var pitchModes    = { "OFF" : 0, "VS" : 1, "ALT" : 2, "GS" : 3, "AOA" : 4 };
+var rollArmModes  = { "OFF" : 0, "NAV" : 1, "OMNI" : 2, "APR" : 3, "REV" : 4 };
+var pitchArmModes = { "OFF" : 0, "ALT" : 1, "GS" : 2 };
 
 # settings
-propSettings = props.globals.getNode(settings, 1);
+var propSettings = props.globals.getNode(settings, 1);
 
-settingTargetAltPressure    = propSettings.getNode("target-alt-pressure", 1);
-settingTargetInterceptAngle = propSettings.getNode("target-intercept-angle", 1);
-settingTargetPressureRate   = propSettings.getNode("target-pressure-rate", 1);
-settingTargetRollDeg        = propSettings.getNode("target-roll-deg", 1);
-settingRollKnobDeg          = propSettings.getNode("roll-knob-deg", 1);
-settingTargetPitchDeg       = propSettings.getNode("target-pitch-deg", 1);
-settingPitchWheelDeg        = propSettings.getNode("pitch-wheel-deg", 1);
-settingAutoPitchTrim        = propSettings.getNode("auto-pitch-trim", 1);
-settingGScaptured           = propSettings.getNode("gs-captured", 1);
-settingDeltaPitch           = propSettings.getNode("delta-pitch", 1);
+var settingTargetAltPressure    = propSettings.getNode("target-alt-pressure", 1);
+var settingTargetInterceptAngle = propSettings.getNode("target-intercept-angle", 1);
+var settingTargetPressureRate   = propSettings.getNode("target-pressure-rate", 1);
+var settingTargetRollDeg        = propSettings.getNode("target-roll-deg", 1);
+var settingRollKnobDeg          = propSettings.getNode("roll-knob-deg", 1);
+var settingTargetPitchDeg       = propSettings.getNode("target-pitch-deg", 1);
+var settingPitchWheelDeg        = propSettings.getNode("pitch-wheel-deg", 1);
+var settingAutoPitchTrim        = propSettings.getNode("auto-pitch-trim", 1);
+var settingGScaptured           = propSettings.getNode("gs-captured", 1);
+var settingDeltaPitch           = propSettings.getNode("delta-pitch", 1);
 
 #Flight controls
-propFlightControls = props.globals.getNode(flightControls, 1);
+var propFlightControls = props.globals.getNode(flightControls, 1);
 
-elevatorControl         = propFlightControls.getNode("elevator", 1);
-elevatorTrimControl     = propFlightControls.getNode("elevator-trim", 1);
+var elevatorControl         = propFlightControls.getNode("elevator", 1);
+var elevatorTrimControl     = propFlightControls.getNode("elevator-trim", 1);
 
 #Autopilot controls
-propAutopilotControls   = props.globals.getNode(autopilotControls, 1);
+var propAutopilotControls   = props.globals.getNode(autopilotControls, 1);
 
-rollControl             = propAutopilotControls.getNode("roll", 1);
+var rollControl             = propAutopilotControls.getNode("roll", 1);
 # values 0 (ROLL switch off) 1 (ROLL switch on)
 
-hdgControl              = propAutopilotControls.getNode("hdg", 1);
+var hdgControl              = propAutopilotControls.getNode("hdg", 1);
 # values 0 (HDG switch off)  1 (HDG switch on)
 
-modeControl             = propAutopilotControls.getNode("mode", 1);
+var modeControl             = propAutopilotControls.getNode("mode", 1);
 
-altControl              = propAutopilotControls.getNode("alt", 1);
+var altControl              = propAutopilotControls.getNode("alt", 1);
 # values 0 (ALT switch off)  1 (ALT switch on)
 
-pitchControl            = propAutopilotControls.getNode("pitch", 1);
+var pitchControl            = propAutopilotControls.getNode("pitch", 1);
 # values 0 (PITCH switch off)  1 (PITCH switch on)
 
-headingNeedleDeflection = "/instrumentation/nav/heading-needle-deflection";
-gsNeedleDeflection = "/instrumentation/nav/gs-needle-deflection";
-indicatedPitchDeg =  "/instrumentation/attitude-indicator/indicated-pitch-deg";
-staticPressure = "/systems/static/pressure-inhg";
-altitudePressure = "/autopilot/CENTURYIII/settings/target-alt-pressure";
-power="/systems/electrical/outputs/autopilot";
-enableAutoTrim = "/sim/model/enable-auto-trim";
-filteredHeadingNeedleDeflection = "/autopilot/internal/filtered-heading-needle-deflection";
+var headingNeedleDeflection = "/instrumentation/nav/heading-needle-deflection";
+var gsNeedleDeflection = "/instrumentation/nav/gs-needle-deflection";
+var indicatedPitchDeg =  "/instrumentation/attitude-indicator/indicated-pitch-deg";
+var staticPressure = "/systems/static/pressure-inhg";
+var altitudePressure = "/autopilot/CENTURYIII/settings/target-alt-pressure";
+var power="/systems/electrical/outputs/autopilot";
+var enableAutoTrim = "/sim/model/enable-auto-trim";
+var filteredHeadingNeedleDeflection = "/autopilot/internal/filtered-heading-needle-deflection";
 
-pressureUnits = { "inHg" : 0, "hPa" : 1 };
-altPressure = 0.0;
-gsTimeCheck = 0.0;
-valueTest = 0;
-lastValue = 0;
-newValue = 0;
-minVoltageLimit = 8.0;
-oldMode = 2;
+var pressureUnits = { "inHg" : 0, "hPa" : 1 };
+var altPressure = 0.0;
+var gsTimeCheck = 0.0;
+var valueTest = 0;
+var lastValue = 0;
+var newValue = 0;
+var minVoltageLimit = 8.0;
+var newMode = 2;
+var oldMode = 2;
+var deviation = 0;
 rollControl.setDoubleValue(0.0);
 hdgControl.setDoubleValue(0.0);
 altControl.setDoubleValue(0.0);
@@ -112,12 +114,12 @@ settingPitchWheelDeg.setDoubleValue(0.0);
 settingDeltaPitch.setDoubleValue(0.0);
 settingTargetPressureRate.setDoubleValue(0.0);
 settingGScaptured.setDoubleValue(0.0);
-#  If you need to be able to enable/disable auto trim, make is a menue toggle.
+#  If you need to be able to enable/disable auto trim, make is a menu toggle.
 #  Auto trim enabled by default
 setprop(enableAutoTrim, 1);
-autoPitchTrim = 0.0;
+var autoPitchTrim = 0.0;
 
-apInit = func {
+var apInit = func {
   ##print("ap init");
 
   ##
@@ -150,7 +152,7 @@ apInit = func {
 
 }
 
-apPower = func {
+var apPower = func {
 
 ## Monitor autopilot power
 ## Call apInit if the power is too low
@@ -183,7 +185,7 @@ apPower = func {
   } else {
     settingDeltaPitch.setDoubleValue(0.0);
   }
-  inrange0 = getprop("/instrumentation/nav[0]/in-range");
+  var inrange0 = getprop("/instrumentation/nav[0]/in-range");
   # Shut off autopilot if HDG switch on and mode != 2 when NAV flag is on
   if ( !inrange0 ) {
      if ( hdgControl.getValue() and (modeControl.getValue() != 2)) {
@@ -194,7 +196,7 @@ apPower = func {
   settimer(apPower, 0.5);
 }
 
-apRollControl = func {
+var apRollControl = func {
 
   if (rollControl.getValue() ) {
      rollButton(1);
@@ -208,7 +210,7 @@ apRollControl = func {
   }
 }
 
-apHdgControl = func {
+var apHdgControl = func {
 
   if (hdgControl.getValue() ) {
      # hdg switch turned on sets roll
@@ -226,7 +228,7 @@ apHdgControl = func {
   }
 }
  
-apAltControl = func {
+var apAltControl = func {
 
   if ( altControl.getValue() ){
      # Alt switch on so set ROLL, HDG, and PITCH
@@ -243,7 +245,7 @@ apAltControl = func {
   }
 }
       
-apPitchControl = func {
+var apPitchControl = func {
 
   if ( pitchControl.getValue() ) {
      # Pitch switch on so set ROLL and HDG
@@ -260,28 +262,28 @@ apPitchControl = func {
   }
 }
 
-rollKnobUpdate = func {
+var rollKnobUpdate = func {
   if ( rollControl.getValue() and !hdgControl.getValue() ) {
     settingTargetRollDeg.setDoubleValue( settingRollKnobDeg.getValue() );
   }
 } 
 
 
-pitchWheelUpdate = func {
+var pitchWheelUpdate = func {
   if ( rollControl.getValue() and !altControl.getValue() ) {
     settingTargetPitchDeg.setDoubleValue( settingPitchWheelDeg.getValue() );
   }
 }
 
 
-apModeControlsChange = func {
+var apModeControlsChange = func {
   ##
   #  Delay mode change to allow time for multi-mode rotation
   ##
   settimer(apModeControlsSet, 2);
 }
 
-apModeControlsSet = func {
+var apModeControlsSet = func {
   newMode = modeControl.getValue();
 
   ##
@@ -320,7 +322,7 @@ apModeControlsSet = func {
   }
 }
 
-rollButton = func(switch_on) {
+var rollButton = func(switch_on) {
   ##print("rollButton");
 #  Disable button if too little power
   if (getprop(power) < minVoltageLimit) { return; }
@@ -352,7 +354,7 @@ rollButton = func(switch_on) {
 }
 
 
-hdgButton = func(switch_on) {
+var hdgButton = func(switch_on) {
   ##print("hdgButton");
 #  Disable button if too little power
   if (getprop(power) < minVoltageLimit) { return; }
@@ -383,7 +385,7 @@ hdgButton = func(switch_on) {
   }   
 }
 
-navButton = func {
+var navButton = func {
   ##print("navButton");
 #  Disable button if too little power
   if (getprop(power) < minVoltageLimit) { return; }
@@ -406,7 +408,7 @@ navButton = func {
     navArmFromHdg();
 }
 
-navArmFromHdg = func
+var navArmFromHdg = func
 {
   ##
   # Abort the NAV-ARM mode if something has changed the arm mode to something
@@ -441,7 +443,7 @@ navArmFromHdg = func
   }
 }
 
-omniButton = func {
+var omniButton = func {
   ##print("navButton");
 #  Disable button if too little power
   if (getprop(power) < minVoltageLimit) { return; }
@@ -465,7 +467,7 @@ omniButton = func {
 }
 
 
-omniArmFromHdg = func
+var omniArmFromHdg = func
 {
   ##
   # Abort the OMNI-ARM mode if something has changed the arm mode to something
@@ -501,7 +503,7 @@ omniArmFromHdg = func
 }
 
 
-aprButton = func {
+var aprButton = func {
   ##print("aprButton");
 #  Disable button if too little power
   if (getprop(power) < minVoltageLimit) { return; }
@@ -524,7 +526,7 @@ aprButton = func {
     aprArmFromHdg();
 }
 
-aprArmFromHdg = func
+var aprArmFromHdg = func
 {
   ##
   # Abort the APR-ARM mode if something has changed the arm mode to something
@@ -566,7 +568,7 @@ aprArmFromHdg = func
   }
 }
 
-gsArm = func {
+var gsArm = func {
   ##
   # Abort the GS-ARM mode if something has changed the arm mode to something
   # else than GS-ARM.
@@ -601,7 +603,7 @@ gsArm = func {
 }
 
 
-revButton = func {
+var revButton = func {
   ##print("revButton");
 #  Disable button if too little power
   if (getprop(power) < minVoltageLimit) { return; }
@@ -624,7 +626,7 @@ revButton = func {
 }
 
 
-revArmFromHdg = func
+var revArmFromHdg = func
 {
   ##
   # Abort the REV-ARM mode if something has changed the arm mode to something
@@ -668,7 +670,7 @@ revArmFromHdg = func
 }
 
 
-altButton = func(switch_on) {
+var altButton = func(switch_on) {
 #  Disable button if too little power
   if (getprop(power) < minVoltageLimit) { return; }
 
@@ -696,7 +698,7 @@ altButton = func(switch_on) {
   }  
 }
 
-pitchButton = func(switch_on) {
+var pitchButton = func(switch_on) {
 #  Disable button if too little power
   if (getprop(power) < minVoltageLimit) { return; }
 
@@ -716,11 +718,11 @@ pitchButton = func(switch_on) {
   }
 }
 
-touchPower = func{
+var touchPower = func{
    setprop(power,apVolts);
 }
 
-apVolts = getprop(power);
+var apVolts = getprop(power);
 
 if ( apVolts == nil or apVolts < minVoltageLimit ) {
    # Wait for autopilot to be powered up
