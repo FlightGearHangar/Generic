@@ -12,116 +12,116 @@
 
 # Properties
 
-locks = "/autopilot/KAP140/locks";
-settings = "/autopilot/KAP140/settings";
-annunciators = "/autopilot/KAP140/annunciators";
-internal = "/autopilot/internal";
-power="/systems/electrical/outputs/autopilot";
-encoder =  "/instrumentation/encoder";
-flightControls = "/controls/flight";
+var locks = "/autopilot/KAP140/locks";
+var settings = "/autopilot/KAP140/settings";
+var annunciators = "/autopilot/KAP140/annunciators";
+var internal = "/autopilot/internal";
+var power="/systems/electrical/outputs/autopilot";
+var encoder =  "/instrumentation/encoder";
+var flightControls = "/controls/flight";
 
 # locks
-propLocks = props.globals.getNode(locks, 1);
+var propLocks = props.globals.getNode(locks, 1);
 
-lockAltHold   = propLocks.getNode("alt-hold", 1);
-lockAprHold   = propLocks.getNode("apr-hold", 1);
-lockGsHold    = propLocks.getNode("gs-hold", 1);
-lockHdgHold   = propLocks.getNode("hdg-hold", 1);
-lockNavHold   = propLocks.getNode("nav-hold", 1);
-lockRevHold   = propLocks.getNode("rev-hold", 1);
-lockRollAxis  = propLocks.getNode("roll-axis", 1);
-lockRollMode  = propLocks.getNode("roll-mode", 1);
-lockPitchAxis = propLocks.getNode("pitch-axis", 1);
-lockPitchMode = propLocks.getNode("pitch-mode", 1);
-lockRollArm   = propLocks.getNode("roll-arm", 1);
-lockPitchArm  = propLocks.getNode("pitch-arm", 1);
+var lockAltHold   = propLocks.getNode("alt-hold", 1);
+var lockAprHold   = propLocks.getNode("apr-hold", 1);
+var lockGsHold    = propLocks.getNode("gs-hold", 1);
+var lockHdgHold   = propLocks.getNode("hdg-hold", 1);
+var lockNavHold   = propLocks.getNode("nav-hold", 1);
+var lockRevHold   = propLocks.getNode("rev-hold", 1);
+var lockRollAxis  = propLocks.getNode("roll-axis", 1);
+var lockRollMode  = propLocks.getNode("roll-mode", 1);
+var lockPitchAxis = propLocks.getNode("pitch-axis", 1);
+var lockPitchMode = propLocks.getNode("pitch-mode", 1);
+var lockRollArm   = propLocks.getNode("roll-arm", 1);
+var lockPitchArm  = propLocks.getNode("pitch-arm", 1);
 
 
-rollModes     = { "OFF" : 0, "ROL" : 1, "HDG" : 2, "NAV" : 3, "REV" : 4, "APR" : 5 };
-pitchModes    = { "OFF" : 0, "VS" : 1, "ALT" : 2, "GS" : 3 };
-rollArmModes  = { "OFF" : 0, "NAV" : 1, "APR" : 2, "REV" : 3 };
-pitchArmModes = { "OFF" : 0, "ALT" : 1, "GS" : 2 };
+var rollModes     = { "OFF" : 0, "ROL" : 1, "HDG" : 2, "NAV" : 3, "REV" : 4, "APR" : 5 };
+var pitchModes    = { "OFF" : 0, "VS" : 1, "ALT" : 2, "GS" : 3 };
+var rollArmModes  = { "OFF" : 0, "NAV" : 1, "APR" : 2, "REV" : 3 };
+var pitchArmModes = { "OFF" : 0, "ALT" : 1, "GS" : 2 };
 
 # settings
-propSettings = props.globals.getNode(settings, 1);
+var propSettings = props.globals.getNode(settings, 1);
 
-settingTargetAltPressure    = propSettings.getNode("target-alt-pressure", 1);
-settingTargetInterceptAngle = propSettings.getNode("target-intercept-angle", 1);
-settingTargetPressureRate   = propSettings.getNode("target-pressure-rate", 1);
-settingTargetTurnRate       = propSettings.getNode("target-turn-rate", 1);
-settingTargetAltFt          = propSettings.getNode("target-alt-ft", 1);
-settingBaroSettingInhg      = propSettings.getNode("baro-setting-inhg", 1);
-settingBaroSettingHpa       = propSettings.getNode("baro-setting-hpa", 1);
-settingAutoPitchTrim        = propSettings.getNode("auto-pitch-trim", 1);
+var settingTargetAltPressure    = propSettings.getNode("target-alt-pressure", 1);
+var settingTargetInterceptAngle = propSettings.getNode("target-intercept-angle", 1);
+var settingTargetPressureRate   = propSettings.getNode("target-pressure-rate", 1);
+var settingTargetTurnRate       = propSettings.getNode("target-turn-rate", 1);
+var settingTargetAltFt          = propSettings.getNode("target-alt-ft", 1);
+var settingBaroSettingInhg      = propSettings.getNode("baro-setting-inhg", 1);
+var settingBaroSettingHpa       = propSettings.getNode("baro-setting-hpa", 1);
+var settingAutoPitchTrim        = propSettings.getNode("auto-pitch-trim", 1);
 
 #annunciators
-propAnnunciators = props.globals.getNode(annunciators, 1);
+var propAnnunciators = props.globals.getNode(annunciators, 1);
 
-annunciatorRol          = propAnnunciators.getNode("rol", 1);
-annunciatorHdg          = propAnnunciators.getNode("hdg", 1);
-annunciatorNav          = propAnnunciators.getNode("nav", 1);
-annunciatorNavArm       = propAnnunciators.getNode("nav-arm", 1);
-annunciatorApr          = propAnnunciators.getNode("apr", 1);
-annunciatorAprArm       = propAnnunciators.getNode("apr-arm", 1);
-annunciatorRev          = propAnnunciators.getNode("rev", 1);
-annunciatorRevArm       = propAnnunciators.getNode("rev-arm", 1);
-annunciatorVs           = propAnnunciators.getNode("vs", 1);
-annunciatorVsNumber     = propAnnunciators.getNode("vs-number", 1);
-annunciatorFpm          = propAnnunciators.getNode("fpm", 1);
-annunciatorAlt          = propAnnunciators.getNode("alt", 1);
-annunciatorAltArm       = propAnnunciators.getNode("alt-arm", 1);
-annunciatorAltNumber    = propAnnunciators.getNode("alt-number", 1);
-annunciatorAltAlert     = propAnnunciators.getNode("alt-alert", 1);
-annunciatorApr          = propAnnunciators.getNode("apr", 1);
-annunciatorGs           = propAnnunciators.getNode("gs", 1);
-annunciatorGsArm        = propAnnunciators.getNode("gs-arm", 1);
-annunciatorPtUp         = propAnnunciators.getNode("pt-up", 1);
-annunciatorPtDn         = propAnnunciators.getNode("pt-dn", 1);
-annunciatorBsHpaNumber  = propAnnunciators.getNode("bs-hpa-number", 1);
-annunciatorBsInhgNumber = propAnnunciators.getNode("bs-inhg-number", 1);
-annunciatorAp           = propAnnunciators.getNode("ap", 1);
-annunciatorBeep         = propAnnunciators.getNode("beep", 1);
+var annunciatorRol          = propAnnunciators.getNode("rol", 1);
+var annunciatorHdg          = propAnnunciators.getNode("hdg", 1);
+var annunciatorNav          = propAnnunciators.getNode("nav", 1);
+var annunciatorNavArm       = propAnnunciators.getNode("nav-arm", 1);
+var annunciatorApr          = propAnnunciators.getNode("apr", 1);
+var annunciatorAprArm       = propAnnunciators.getNode("apr-arm", 1);
+var annunciatorRev          = propAnnunciators.getNode("rev", 1);
+var annunciatorRevArm       = propAnnunciators.getNode("rev-arm", 1);
+var annunciatorVs           = propAnnunciators.getNode("vs", 1);
+var annunciatorVsNumber     = propAnnunciators.getNode("vs-number", 1);
+var annunciatorFpm          = propAnnunciators.getNode("fpm", 1);
+var annunciatorAlt          = propAnnunciators.getNode("alt", 1);
+var annunciatorAltArm       = propAnnunciators.getNode("alt-arm", 1);
+var annunciatorAltNumber    = propAnnunciators.getNode("alt-number", 1);
+var annunciatorAltAlert     = propAnnunciators.getNode("alt-alert", 1);
+var annunciatorApr          = propAnnunciators.getNode("apr", 1);
+var annunciatorGs           = propAnnunciators.getNode("gs", 1);
+var annunciatorGsArm        = propAnnunciators.getNode("gs-arm", 1);
+var annunciatorPtUp         = propAnnunciators.getNode("pt-up", 1);
+var annunciatorPtDn         = propAnnunciators.getNode("pt-dn", 1);
+var annunciatorBsHpaNumber  = propAnnunciators.getNode("bs-hpa-number", 1);
+var annunciatorBsInhgNumber = propAnnunciators.getNode("bs-inhg-number", 1);
+var annunciatorAp           = propAnnunciators.getNode("ap", 1);
+var annunciatorBeep         = propAnnunciators.getNode("beep", 1);
 
 #flashers
-altAlertBeeper  = aircraft.light.new(annunciatorBeep, [0.5, 0.25]).switch(0);
-altAlertFlasher = aircraft.light.new(annunciatorAltAlert, [0.5, 0.25]).switch(0);
-hdgFlasher      = aircraft.light.new(annunciatorHdg, [0.5, 0.25]).switch(0);
-apFlasher       = aircraft.light.new(annunciatorAp, [1.0, 0.5]).switch(0);
+var altAlertBeeper  = aircraft.light.new(annunciatorBeep, [0.5, 0.25]).switch(0);
+var altAlertFlasher = aircraft.light.new(annunciatorAltAlert, [0.5, 0.25]).switch(0);
+var hdgFlasher      = aircraft.light.new(annunciatorHdg, [0.5, 0.25]).switch(0);
+var apFlasher       = aircraft.light.new(annunciatorAp, [1.0, 0.5]).switch(0);
 
 #Flight controls
-propFlightControls = props.globals.getNode(flightControls, 0);
+var propFlightControls = props.globals.getNode(flightControls, 0);
 
-elevatorControl         = propFlightControls.getNode("elevator", 0);
-elevatorTrimControl     = propFlightControls.getNode("elevator-trim", 0);
+var elevatorControl         = propFlightControls.getNode("elevator", 0);
+var elevatorTrimControl     = propFlightControls.getNode("elevator-trim", 0);
 
-headingNeedleDeflection = "/instrumentation/nav/heading-needle-deflection";
-gsNeedleDeflection = "/instrumentation/nav/gs-needle-deflection";
-staticPressure = "systems/static/pressure-inhg";
+var headingNeedleDeflection = "/instrumentation/nav/heading-needle-deflection";
+var gsNeedleDeflection = "/instrumentation/nav/gs-needle-deflection";
+var staticPressure = "systems/static/pressure-inhg";
 
-pressureUnits = { "inHg" : 0, "hPa" : 1 };
-baroSettingUnit = pressureUnits["inHg"];
-baroSettingInhg = 29.92;
-baroSettingHpa = baroSettingInhg * 0.03386389;
-baroSettingAdjusting = 0;
-baroButtonDown = 0;
-baroTimerRunning = 0;
+var pressureUnits = { "inHg" : 0, "hPa" : 1 };
+var baroSettingUnit = pressureUnits["inHg"];
+var baroSettingInhg = 29.92;
+var baroSettingHpa = baroSettingInhg * 0.03386389;
+var baroSettingAdjusting = 0;
+var baroButtonDown = 0;
+var baroTimerRunning = 0;
 
-altPreselect = 0;
-altButtonTimerRunning = 0;
-altButtonTimerIgnore = 0;
-altAlertOn = 0;
-altCaptured = 0;
-altDifference = 0.0;
+var altPreselect = 0;
+var altButtonTimerRunning = 0;
+var altButtonTimerIgnore = 0;
+var altAlertOn = 0;
+var altCaptured = 0;
+var altDifference = 0.0;
 
-valueTest = 0;
-lastValue = 0;
-newValue = 0;
-baroOffset = 0.0;
-baroChange = 1;
-minVoltageLimit = 8.0;
+var valueTest = 0;
+var lastValue = 0;
+var newValue = 0;
+var baroOffset = 0.0;
+var baroChange = 1;
+var minVoltageLimit = 8.0;
 
 
-ptCheck = func {
+var ptCheck = func {
   ##print("pitch trim check");
 
   if (lockPitchMode.getValue() == pitchModes["OFF"])
@@ -133,7 +133,7 @@ ptCheck = func {
 
   else
   {
-    autoPitchTrim = settingAutoPitchTrim.getValue();
+    var autoPitchTrim = settingAutoPitchTrim.getValue();
     # Flash the pitch trim up annunciator
     if (elevatorControl.getValue() < -0.01)
     {
@@ -184,7 +184,7 @@ ptCheck = func {
 }
 
 
-apInit = func {
+var apInit = func {
   ##print("ap init");
 
   ##
@@ -239,7 +239,7 @@ apInit = func {
 #  settimer(altAlert, 5.0);
 }
 
-apPower = func {
+var apPower = func {
 
 ## Monitor autopilot power
 ## Call apInit if the power is too low
@@ -269,7 +269,7 @@ apPower = func {
   settimer(apPower, 0.5);
 }
 
-apButton = func {
+var apButton = func {
   ##print("apButton");
 #  Disable button if too little power
   if (getprop(power) < minVoltageLimit) { return; }
@@ -303,9 +303,9 @@ apButton = func {
 
     ptCheck();
 
-    pressureRate = getprop(internal, "pressure-rate");
+    var pressureRate = getprop(internal, "pressure-rate");
     #print(pressureRate);
-    fpm = -pressureRate * 58000;
+    var fpm = -pressureRate * 58000;
     #print(fpm);
     if (fpm > 0.0)
     {
@@ -376,7 +376,7 @@ apButton = func {
 }
 
 
-hdgButton = func {
+var hdgButton = func {
   ##print("hdgButton");
 #  Disable button if too little power
   if (getprop(power) < minVoltageLimit) { return; }
@@ -414,8 +414,8 @@ hdgButton = func {
 
     ptCheck();
 
-    pressureRate = getprop(internal, "pressure-rate");
-    fpm = -pressureRate * 58000;
+    var pressureRate = getprop(internal, "pressure-rate");
+    var fpm = -pressureRate * 58000;
     #print(fpm);
     if (fpm > 0.0)
     {
@@ -546,9 +546,9 @@ hdgButton = func {
 
     settingTargetInterceptAngle.setDoubleValue(0.0);
 
-    pressureRate = getprop(internal, "pressure-rate");
+    var pressureRate = getprop(internal, "pressure-rate");
     #print(pressureRate);
-    fpm = -pressureRate * 58000;
+    var fpm = -pressureRate * 58000;
     #print(fpm);
     if (fpm > 0.0)
     {
@@ -573,7 +573,7 @@ hdgButton = func {
 }
 
 
-navButton = func {
+var navButton = func {
   ##print("navButton");
 #  Disable button if too little power
   if (getprop(power) < minVoltageLimit) { return; }
@@ -625,7 +625,7 @@ navButton = func {
   ##
 }
 
-navArmFromHdg = func
+var navArmFromHdg = func
 {
   ##
   # Abort the NAV-ARM mode if something has changed the arm mode to something
@@ -675,7 +675,7 @@ navArmFromHdg = func
   }
 }
 
-navArmFromRol = func
+var navArmFromRol = func
 {
   ##
   # Abort the NAV-ARM mode if something has changed the arm mode to something
@@ -703,7 +703,7 @@ navArmFromRol = func
   annunciatorRol.setBoolValue(1);
   lockRollAxis.setBoolValue(1);
   settingTargetTurnRate.setDoubleValue(0.0);
-  deviation = getprop(headingNeedleDeflection);
+  var deviation = getprop(headingNeedleDeflection);
   ##
   # If the deflection is more than 3 degrees wait 5 seconds and check again.
   ##
@@ -735,7 +735,7 @@ navArmFromRol = func
   }
 }
 
-aprButton = func {
+var aprButton = func {
   ##print("aprButton");
 #  Disable button if too little power
   if (getprop(power) < minVoltageLimit) { return; }
@@ -779,7 +779,7 @@ aprButton = func {
   }
 }
 
-aprArmFromHdg = func
+var aprArmFromHdg = func
 {
   ##
   # Abort the APR-ARM mode if something has changed the arm mode to something
@@ -805,7 +805,7 @@ aprArmFromHdg = func
   # Activate the apr-hold controller and check the needle deviation.
   ##
   lockAprHold.setBoolValue(1);
-  deviation = getprop(headingNeedleDeflection);
+  var deviation = getprop(headingNeedleDeflection);
   ##
   # If the deflection is more than 3 degrees wait 5 seconds and check again.
   ##
@@ -832,7 +832,7 @@ aprArmFromHdg = func
   }
 }
 
-aprArmFromRol = func
+var aprArmFromRol = func
 {
   ##
   # Abort the APR-ARM mode if something has changed the roll mode to something
@@ -861,7 +861,7 @@ aprArmFromRol = func
   annunciatorRol.setBoolValue(1);
   lockRollAxis.setBoolValue(1);
   settingTargetTurnRate.setDoubleValue(0.0);
-  deviation = getprop(headingNeedleDeflection);
+  var deviation = getprop(headingNeedleDeflection);
   ##
   # If the deflection is more than 3 degrees wait 5 seconds and check again.
   ##
@@ -897,7 +897,7 @@ aprArmFromRol = func
 }
 
 
-gsArm = func {
+var gsArm = func {
   ##
   # Abort the GS-ARM mode if something has changed the arm mode to something
   # else than GS-ARM.
@@ -910,7 +910,7 @@ gsArm = func {
 
   annunciatorGsArm.setBoolValue(1);
 
-  deviation = getprop(gsNeedleDeflection);
+  var deviation = getprop(gsNeedleDeflection);
   ##
   # If the deflection is more than 1 degrees wait 5 seconds and check again.
   ##
@@ -942,7 +942,7 @@ gsArm = func {
 }
 
 
-revButton = func {
+var revButton = func {
   ##print("revButton");
 #  Disable button if too little power
   if (getprop(power) < minVoltageLimit) { return; }
@@ -985,7 +985,7 @@ revButton = func {
 }
 
 
-revArmFromHdg = func
+var revArmFromHdg = func
 {
   ##
   # Abort the REV-ARM mode if something has changed the arm mode to something
@@ -1011,7 +1011,7 @@ revArmFromHdg = func
   # Activate the rev-hold controller and check the needle deviation.
   ##
   lockRevHold.setBoolValue(1);
-  deviation = getprop(headingNeedleDeflection);
+  var deviation = getprop(headingNeedleDeflection);
   ##
   # If the deflection is more than 3 degrees wait 5 seconds and check again.
   ##
@@ -1048,7 +1048,7 @@ revArmFromHdg = func
 }
 
 
-revArmFromRol = func
+var revArmFromRol = func
 {
   ##
   # Abort the REV-ARM mode if something has changed the arm mode to something
@@ -1077,7 +1077,7 @@ revArmFromRol = func
   annunciatorRol.setBoolValue(1);
   lockRollAxis.setBoolValue(1);
   settingTargetTurnRate.setDoubleValue(0.0);
-  deviation = getprop(headingNeedleDeflection);
+  var deviation = getprop(headingNeedleDeflection);
   ##
   # If the deflection is more than 3 degrees wait 5 seconds and check again.
   ##
@@ -1110,7 +1110,7 @@ revArmFromRol = func
 }
 
 
-altButtonTimer = func {
+var altButtonTimer = func {
   #print("alt button timer");
   #print(altButtonTimerIgnore);
 
@@ -1128,7 +1128,7 @@ altButtonTimer = func {
 }
 
 
-altButton = func {
+var altButton = func {
   ##print("altButton");
 #  Disable button if too little power
   if (getprop(power) < minVoltageLimit) { return; }
@@ -1152,8 +1152,8 @@ altButton = func {
     annunciatorVs.setBoolValue(1);
     annunciatorVsNumber.setBoolValue(1);
 
-    pressureRate = getprop(internal, "pressure-rate");
-    fpm = -pressureRate * 58000;
+    var pressureRate = getprop(internal, "pressure-rate");
+    var fpm = -pressureRate * 58000;
     #print(fpm);
     if (fpm > 0.0)
     {
@@ -1179,13 +1179,13 @@ altButton = func {
     annunciatorVsNumber.setBoolValue(0);
     annunciatorAltNumber.setBoolValue(1);
 
-    altPressure = getprop(staticPressure);
+    var altPressure = getprop(staticPressure);
     settingTargetAltPressure.setDoubleValue(altPressure);
   }
 }
 
 
-downButton = func {
+var downButton = func {
   ##print("downButton");#  Disable button if too little power
   if (getprop(power) < minVoltageLimit) { return; }
 
@@ -1204,7 +1204,7 @@ downButton = func {
           settimer(altButtonTimer, 3.0);
           altButtonTimerIgnore = altButtonTimerIgnore + 1;
       }
-      targetVS = getprop(settings, "target-pressure-rate");
+      targetVS = settingTargetPressureRate.getValue();
       settingTargetPressureRate.setDoubleValue(targetVS +
                                                0.0017241379310345);
       annunciatorAltNumber.setBoolValue(0);
@@ -1212,13 +1212,13 @@ downButton = func {
     }
     elsif (lockPitchMode.getValue() == pitchModes["ALT"])
     {
-      targetPressure = getprop(settings, "target-alt-pressure");
+      var targetPressure = getprop(settings, "target-alt-pressure");
       settingTargetAltPressure.setDoubleValue(targetPressure + 0.0206);
     }
   }
 }
 
-upButton = func {
+var upButton = func {
   ##print("upButton");
 #  Disable button if too little power
   if (getprop(power) < minVoltageLimit) { return; }
@@ -1238,7 +1238,7 @@ upButton = func {
           settimer(altButtonTimer, 3.0);
           altButtonTimerIgnore = altButtonTimerIgnore + 1;
       }
-      targetVS = getprop(settings, "target-pressure-rate");
+      var targetVS = settingTargetPressureRate.getValue();
       settingTargetPressureRate.setDoubleValue(targetVS -
                                                0.0017241379310345);
       annunciatorAltNumber.setBoolValue(0);
@@ -1246,18 +1246,18 @@ upButton = func {
     }
     elsif (lockPitchMode.getValue() == pitchModes["ALT"])
     {
-      targetPressure = getprop(settings, "target-alt-pressure");
+      var targetPressure = getprop(settings, "target-alt-pressure");
       settingTargetAltPressure.setDoubleValue(targetPressure - 0.0206);
     }
   }
 }
 
-armButton = func {
+var armButton = func {
   #print("arm button");
 #  Disable button if too little power
   if (getprop(power) < minVoltageLimit) { return; }
 
-  pitchArm = lockPitchArm.getValue();
+  var pitchArm = lockPitchArm.getValue();
 
   if (pitchArm == pitchArmModes["OFF"])
   {
@@ -1274,7 +1274,7 @@ armButton = func {
 }
 
 
-baroButtonTimer = func {
+var baroButtonTimer = func {
   #print("baro button timer");
 
   baroTimerRunning = 0;
@@ -1299,7 +1299,7 @@ baroButtonTimer = func {
   }
 }
 
-baroButtonPress = func {
+var baroButtonPress = func {
   #print("baro putton press");
 #  Disable button if too little power
   if (getprop(power) < minVoltageLimit) { return; }
@@ -1327,7 +1327,7 @@ baroButtonPress = func {
 }
 
 
-baroButtonRelease = func {
+var baroButtonRelease = func {
   #print("baro button release");
 #  Disable button if too little power
   if (getprop(power) < minVoltageLimit) { return; }
@@ -1336,60 +1336,60 @@ baroButtonRelease = func {
 }
 
 
-pow = func(base, exponent) {
+var pow = func(base, exponent) {
   #print(base,exponent);
   return math.exp(exponent*math.ln(base));
 }
 
 
-pressureToHeight = func(p, p0) {
+var pressureToHeight = func(p, p0) {
 #
 #   kollsman shift due to baroSettingInhg =
 #       baroOffset = pressureToHeight(baroSettingInhg, 29.921260)
 #
-  #p0 = p0;    # [Pa] or (p0 and p need to have the same units)
-  #p = p;     # [Pa] or (p0 and p need to have the same units)
-  t0 = 288.15;    # [K]       same as in atmosphere.?xx
-  LR = -0.0065;   # [K/m]     same as in atmosphere.?xx
-  g = -9.80665;   # [m/s²]    same as in atmosphere.?xx
-  Rd = 287.05307; # [J/kg K]  same as in atmosphere.?xx to 8 places
-  ftTom = 0.3048;
-  coefficient = t0/LR/ftTom;
+  #var p0 = p0;    # [Pa] or (p0 and p need to have the same units)
+  #var p = p;     # [Pa] or (p0 and p need to have the same units)
+  var t0 = 288.15;    # [K]       same as in atmosphere.?xx
+  var LR = -0.0065;   # [K/m]     same as in atmosphere.?xx
+  var g = -9.80665;   # [m/s²]    same as in atmosphere.?xx
+  var Rd = 287.05307; # [J/kg K]  same as in atmosphere.?xx to 8 places
+  var ftTom = 0.3048;
+  var coefficient = t0/LR/ftTom;
 #  coefficient = -145442.156;
-  exponent = Rd*LR/g;
+  var exponent = Rd*LR/g;
 #  exponent = 0.1902632365;
 
-  z = -coefficient * (1.0-pow((p/p0),exponent));
+  var z = -coefficient * (1.0-pow((p/p0),exponent));
   return z;
 }
 
 
 heightToPressure = func(z, p0) {
-  #p0 = p0;    # [Pa]
-  #z = z;     # [m]
-  t0 = 288.15;    # [K]
-  LR = -0.0065;    # [K/m]
-  g = -9.80665;    # [m/s²]
-  Rd = 287.05307; # [J/kg K]
+  #var p0 = p0;    # [Pa]
+  #var z = z;     # [m]
+  var t0 = 288.15;    # [K]
+  var LR = -0.0065;    # [K/m]
+  var g = -9.80665;    # [m/s²]
+  var Rd = 287.05307; # [J/kg K]
 
-  p = p0 * pow(((t0+LR*z)/t0),(g/(Rd*LR)));
+  var p = p0 * pow(((t0+LR*z)/t0),(g/(Rd*LR)));
   return p;
 }
 
-altAlert = func {
+var altAlert = func {
   #print("alt alert");
 #  Disable button if too little power
   if (getprop(power) < minVoltageLimit) { return; }
 
-  pressureAltitude = getprop(encoder, "pressure-alt-ft");
+  var pressureAltitude = getprop(encoder, "pressure-alt-ft");
 
   if (baroChange) {
     baroOffset = pressureToHeight(baroSettingInhg, 29.921260);
     baroChange = 0;
   }
 
-  altFt = pressureAltitude - baroOffset;
-  prevAltDifference = altDifference;
+  var altFt = pressureAltitude - baroOffset;
+  var prevAltDifference = altDifference;
   altDifference = abs(altPreselect - altFt);
 
   if (altDifference > 1000)
@@ -1431,7 +1431,7 @@ altAlert = func {
           annunciatorVsNumber.setBoolValue(0);
           annunciatorAltNumber.setBoolValue(1);
 
-          altPressure = getprop(staticPressure);
+          var altPressure = getprop(staticPressure);
           settingTargetAltPressure.setDoubleValue(altPressure);
         }
 
@@ -1452,7 +1452,7 @@ altAlert = func {
   settimer(altAlert, 2.0);
 }
 
-adjustBaroSettingInhg = func(amount) {
+var adjustBaroSettingInhg = func(amount) {
   # Adjust baro setting inHg by amount,
   # and sync baro setting hPa.
   baroSettingInhg = baroSettingInhg + amount;
@@ -1463,7 +1463,7 @@ adjustBaroSettingInhg = func(amount) {
   baroChange = 1;
 }
 
-adjustbaroSettingHpa = func(amount) {
+var adjustbaroSettingHpa = func(amount) {
   # Adjust baro setting hPa by amount,
   # and sync baro setting inHg.
   baroSettingHpa = baroSettingHpa + amount;
@@ -1474,7 +1474,7 @@ adjustbaroSettingHpa = func(amount) {
   baroChange = 1;
 }
 
-knobSmallUp = func {
+var knobSmallUp = func {
   #print("knob small up");
 #  Disable button if too little power
   if (getprop(power) < minVoltageLimit) { return; }
@@ -1516,7 +1516,7 @@ knobSmallUp = func {
 }
 
 
-knobLargeUp = func {
+var knobLargeUp = func {
   #print("knob large up");
 #  Disable button if too little power
   if (getprop(power) < minVoltageLimit) { return; }
@@ -1558,7 +1558,7 @@ knobLargeUp = func {
 }
 
 
-knobSmallDown = func {
+var knobSmallDown = func {
   #print("knob small down");
 #  Disable button if too little power
   if (getprop(power) < minVoltageLimit) { return; }
@@ -1600,7 +1600,7 @@ knobSmallDown = func {
 }
 
 
-knobLargeDown = func {
+var knobLargeDown = func {
   #print("knob large down");
 #  Disable button if too little power
   if (getprop(power) < minVoltageLimit) { return; }
@@ -1645,5 +1645,3 @@ var L = setlistener(power, func {
   apPower();
   removelistener(L);
 });
-
-
