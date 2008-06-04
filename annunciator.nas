@@ -4,15 +4,6 @@ var VACUUM_THRESHOLD = 3.0;
 var OIL_PRESSURE_THRESHOLD = 20.0;
 
 
-var init_prop = func(prop, default = 0) {
-	var n = props.globals.getNode(prop, 1);
-	if (n.getType() == "NONE")
-		n.setDoubleValue(default);
-
-	return n;
-}
-
-
 var ann = {
 	new : func(p) {
 		var m = { parents : [ann] };
@@ -28,25 +19,23 @@ var ann = {
 				me.stamp = sec + 10;
 				me.state = 1;
 			}
-			if (sec < me.stamp)
-				me.node.setBoolValue(clock);
-			else
-				me.node.setBoolValue(1);
+			me.node.setBoolValue(sec < me.stamp ? clock : 1);
+
 		} else {
-			me.state or return;
-			me.node.setBoolValue(me.state = 0);
+			if (me.state)
+				me.node.setBoolValue(me.state = 0);
 		}
 	},
 };
 
 
-var volts = init_prop("/systems/electrical/volts");
-var vac_l = init_prop("/systems/vacuum[0]/suction-inhg");
-var vac_r = init_prop("/systems/vacuum[1]/suction-inhg");
-var fuel_l = init_prop("/consumables/fuel/tank[0]/level-gal_us");
-var fuel_r = init_prop("/consumables/fuel/tank[1]/level-gal_us");
-var oil_px = init_prop("/engines/engine[0]/oil-pressure-psi");
-var elapsed = init_prop("/sim/time/elapsed-sec");
+var volts = props.initNode("/systems/electrical/volts");
+var vac_l = props.initNode("/systems/vacuum[0]/suction-inhg");
+var vac_r = props.initNode("/systems/vacuum[1]/suction-inhg");
+var fuel_l = props.initNode("/consumables/fuel/tank[0]/level-gal_us");
+var fuel_r = props.initNode("/consumables/fuel/tank[1]/level-gal_us");
+var oil_px = props.initNode("/engines/engine[0]/oil-pressure-psi");
+var elapsed = props.initNode("/sim/time/elapsed-sec");
 
 
 var ann_volts = ann.new("/instrumentation/annunciator/volts");
@@ -87,10 +76,7 @@ var main = func {
 var serviceable = nil;
 
 settimer(func {
-	setlistener("/systems/electrical/serviceable", func {
-		serviceable = cmdarg().getBoolValue();
-	}, 1);
-
+	setlistener("/systems/electrical/serviceable", func(n) serviceable = n.getBoolValue(), 1);
 	main();
 }, 0);
 
