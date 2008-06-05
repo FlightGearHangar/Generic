@@ -14,7 +14,7 @@
 
 
 var FT2M = 0.3048;
-var NM2M = 1852;
+var NM2KM = 1.852;
 
 
 var my_maxrange = func(myaircraft) {
@@ -24,10 +24,11 @@ var my_maxrange = func(myaircraft) {
 	}
 	var my_radar_area = radarData[myacname][7];
 	var my_radar_range = radarData[myacname][5];
-	return( my_radar_range / my_radar_area);
+	#return( my_radar_range / my_radar_area);
 	#var my_plane = radarData[myacname][2];
-	#print (my_plane);
-	#print (my_radar_area);
+	#print ("aircraft = " ~ my_plane);
+	#print ("range = " ~ my_radar_range);
+	#print ("aera = " ~ my_radar_area);
 }
 
 
@@ -79,18 +80,19 @@ var radis = func(i, my_radarcorr) {
 				agl_corr = 0.8;
 			}
 
-			# Calculate the detection distance.
-			var det_range = my_radarcorr * rcs_4r * alt_corr * agl_corr;
+			# Calculate the detection distance for this multiplayer.
+			var det_range = my_radarcorr * rcs_4r * alt_corr * agl_corr / NM2KM;
 			#print (radartype);
 			#print (rcs_4r);
-			#print (det_range);
 
 			### Compare if aircraft is in detection range and return.
 			var act_range = mpnode.getNode("radar/range-nm").getValue();
 			if ((act_range == nil) or (act_range == 0)) {
 				act_range = 500;
 			}
-			if ((det_range / NM2M) >= act_range) {
+			#print (det_range ~ " " ~ act_range);
+			if (det_range >= act_range) {
+				#print("paint it");
 				return(1);
 			}
 		}
