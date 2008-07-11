@@ -14,7 +14,7 @@
 # radar stuff too.
 
 
-var datas_path   = getprop("/sim/fg-root") ~ "/Aircraft/Generic/radardist.xml";
+var data_path   = getprop("/sim/fg-root") ~ "/Aircraft/Generic/radardist.xml";
 var aircraftData = {};
 var radarData    = [];
 
@@ -110,10 +110,10 @@ var radis = func(t, my_radarcorr) {
 }
 
 
-var load_datas = func {
+var load_data = func {
 	# a) converts aircraft model name to lookup (index) number in aircraftData{}.
-	# b) appends ordered list of datas into radarData[],
-	# datas are:
+	# b) appends ordered list of data into radarData[],
+	# data is:
 	# - acname (the index number)
 	# - the first (if several) aircraft model name corresponding to this type,
 	# - RCS(m2),
@@ -122,8 +122,8 @@ var load_datas = func {
 	# - max. radar range(km),
 	# - max. radar range target seize(RCS)m2,
 	# - 4th root of radar RCS.
-	var datas_node = props.globals.getNode("instrumentation/radardist/datas");
-	var aircraft_types = datas_node.getChildren();
+	var data_node = props.globals.getNode("instrumentation/radar-performance/data");
+	var aircraft_types = data_node.getChildren();
 	foreach( var t; aircraft_types ) {
 		var index = t.getIndex();
 		var aircraft_names = t.getChildren();
@@ -148,11 +148,10 @@ var load_datas = func {
 }
 
 
-
 var init = func {
-	print("Initializing Radar Datas from: " ~ datas_path);
-	fgcommand("load", props.Node.new({ "file": datas_path }));
-	load_datas();
+	print("Initializing Radar Data");
+	fgcommand("load", props.Node.new({ "file": data_path }));
+	load_data();
 }
 
 

@@ -9,8 +9,8 @@
 max. radar range target seize(RCS)m2, 4th root of radar RCS -->
 
 	<instrumentation>
-		<radardist>
-			<datas>
+		<radar-performance>
+			<data>
 				<aircraft n="0">
 					<name>generic</name>
 					<rcs-sq-meter>5</rcs-sq-meter>
@@ -533,8 +533,8 @@ max. radar range target seize(RCS)m2, 4th root of radar RCS -->
 					<max-target-sq-meter>100</max-target-sq-meter>
 					<max-target-4th-root>3.16</max-target-4th-root>
 				</aircraft>
-			</datas>
-		</radardist>
+			</data>
+		</radar-performance>
 	</instrumentation>
 
 
