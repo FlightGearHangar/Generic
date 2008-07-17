@@ -150,7 +150,7 @@ var load_data = func {
 
 var init = func {
 	print("Initializing Radar Data");
-	fgcommand("load", props.Node.new({ "file": data_path }));
+	io.read_properties(data_path, props.globals);
 	load_data();
 }
 
