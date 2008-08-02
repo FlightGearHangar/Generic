@@ -74,8 +74,7 @@ var radis = func(t, my_radarcorr) {
 	var agl_corr = 1;
 	var mp_lon = mpnode.getNode("position/longitude-deg").getValue();
 	var mp_lat = mpnode.getNode("position/latitude-deg").getValue();
-	var mp_pos = geo.Coord.new().set_latlon(mp_lat, mp_lon);
-	var pos_elev = geo.elevation(mp_pos.lat(), mp_pos.lon());
+	var pos_elev = geo.elevation(mp_lat, mp_lon);
 	if (pos_elev != nil) {
 		#print("pos_elev: " ~ pos_elev);
 		var mp_agl = alt_ac - ( pos_elev / FT2M );
