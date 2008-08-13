@@ -17,28 +17,10 @@ var serviceable = nil;
 var fuel_freeze = nil;
 var ai_enabled = nil;
 var engines = nil;
-var tanks = nil;
+var tanks = [];
 var refuelingN = nil;
 var aimodelsN = nil;
-
-
-
-# initialize property if it doesn't exist, and set node type otherwise
-var init_prop = func(node, prop, val, type = "double") {
-	var n = node.getNode(prop);
-	if (n != nil) {
-		var v = n.getValue();
-		if (v != nil)
-			val = v;
-	}
-	node = node.getNode(prop, 1);
-	if (type == "double")
-		node.setDoubleValue(val);
-	elsif (type == "bool")
-		node.setBoolValue(val);
-	elsif (type == "int")
-		node.setIntValue(val);
-}
+var systems = {};
 
 
 
@@ -50,11 +32,15 @@ var update_loop = func {
 		var mp = aimodelsN.getChildren("multiplayer");
 
 		foreach (var a; ac ~ mp) {
-			var contact = a.getNode("refuel/contact", 1).getValue();
-			var tanker = a.getNode("tanker", 1).getValue();
-
-			if (tanker and contact)
-				append(tankers, a);
+			if (!a.getNode("tanker", 1).getValue())
+				continue;
+			if (!a.getNode("refuel/contact", 1).getValue())
+				continue;
+			foreach (var s; a.getNode("refuel", 1).getChildren("system")) {
+				var system = s.getValue();
+				if (contains(systems, system) and systems[system])
+					append(tankers, a);
+			}
 		}
 	}
 
@@ -176,31 +162,37 @@ var update_loop = func {
 
 setlistener("/sim/signals/fdm-initialized", func {
 	if (contains(globals, "fuel") and typeof(fuel) == "hash")
-		fuel.loop = func {}	# kill $FG_ROOT/Nasal/fuel.nas' loop
+		fuel.loop = func nil;       # kill $FG_ROOT/Nasal/fuel.nas' loop
 
 	refuelingN = props.globals.getNode("/systems/refuel/contact", 1);
 	refuelingN.setBoolValue(0);
 
 	aimodelsN = props.globals.getNode("ai/models", 1);
 	engines = props.globals.getNode("engines", 1).getChildren("engine");
-	tanks = props.globals.getNode("consumables/fuel", 1).getChildren("tank");
 
 	foreach (var e; engines) {
 		e.getNode("fuel-consumed-lbs", 1).setDoubleValue(0);
 		e.getNode("out-of-fuel", 1).setBoolValue(0);
 	}
 
-	foreach (var t; tanks) {
-		init_prop(t, "level-gal_us", 0);
-		init_prop(t, "level-lbs", 0);
-		init_prop(t, "capacity-gal_us", 0.01); # Not zero (div/zero issue)
-		init_prop(t, "density-ppg", 6.0);      # gasoline
-		init_prop(t, "selected", 1, "bool");
+	foreach (var t; props.globals.getNode("consumables/fuel", 1).getChildren("tank")) {
+		if (!t.getAttribute("children"))
+			continue;           # skip native_fdm.cxx generated zombie tanks
+
+		append(tanks, t);
+		props.initNode(t.getNode("level-gal_us", 1), 0.0);
+		props.initNode(t.getNode("level-lbs", 1), 0.0);
+		props.initNode(t.getNode("capacity-gal_us", 1), 0.01); # not zero (div/zero issue)
+		props.initNode(t.getNode("density-ppg", 1), 6.0);      # gasoline
+		props.initNode(t.getNode("selected", 1), 1, "BOOL");
 	}
 
-	setlistener("sim/freeze/fuel", func { fuel_freeze = cmdarg().getBoolValue() }, 1);
-	setlistener("sim/ai/enabled", func { ai_enabled = cmdarg().getBoolValue() }, 1);
-	setlistener("systems/refuel/serviceable", func { serviceable = cmdarg().getBoolValue() }, 1);
+	foreach (var s; props.globals.getNode("/systems/refuel", 1).getChildren("system"))
+		systems[s.getValue()] = 1;
+
+	setlistener("sim/freeze/fuel", func(n) fuel_freeze = n.getBoolValue(), 1);
+	setlistener("sim/ai/enabled", func(n) ai_enabled = n.getBoolValue(), 1);
+	setlistener("systems/refuel/serviceable", func(n) serviceable = n.getBoolValue(), 1);
 	update_loop();
 });
 
