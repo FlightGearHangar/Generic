@@ -20,7 +20,7 @@ var engines = nil;
 var tanks = [];
 var refuelingN = nil;
 var aimodelsN = nil;
-var systems = {};
+var types = {};
 
 
 
@@ -36,9 +36,9 @@ var update_loop = func {
 				continue;
 			if (!a.getNode("refuel/contact", 1).getValue())
 				continue;
-			foreach (var s; a.getNode("refuel", 1).getChildren("system")) {
-				var system = s.getValue();
-				if (contains(systems, system) and systems[system])
+			foreach (var t; a.getNode("refuel", 1).getChildren("type")) {
+				var type = t.getValue();
+				if (contains(types, type) and types[type])
 					append(tankers, a);
 			}
 		}
@@ -187,8 +187,8 @@ setlistener("/sim/signals/fdm-initialized", func {
 		props.initNode(t.getNode("selected", 1), 1, "BOOL");
 	}
 
-	foreach (var s; props.globals.getNode("/systems/refuel", 1).getChildren("system"))
-		systems[s.getValue()] = 1;
+	foreach (var t; props.globals.getNode("/systems/refuel", 1).getChildren("type"))
+		types[t.getValue()] = 1;
 
 	setlistener("sim/freeze/fuel", func(n) fuel_freeze = n.getBoolValue(), 1);
 	setlistener("sim/ai/enabled", func(n) ai_enabled = n.getBoolValue(), 1);
