@@ -164,9 +164,7 @@ setlistener("/sim/signals/fdm-initialized", func {
 	if (contains(globals, "fuel") and typeof(fuel) == "hash")
 		fuel.loop = func nil;       # kill $FG_ROOT/Nasal/fuel.nas' loop
 
-	refuelingN = props.globals.getNode("/systems/refuel/contact", 1);
-	refuelingN.setBoolValue(0);
-
+	refuelingN = props.initNode("/systems/refuel/contact", 0, "BOOL");
 	aimodelsN = props.globals.getNode("ai/models", 1);
 	engines = props.globals.getNode("engines", 1).getChildren("engine");
 
@@ -187,7 +185,7 @@ setlistener("/sim/signals/fdm-initialized", func {
 		props.initNode(t.getNode("selected", 1), 1, "BOOL");
 	}
 
-	foreach (var t; props.globals.getNode("/systems/refuel", 1).getChildren("type"))
+	foreach (var t; props.globals.getNode("systems/refuel", 1).getChildren("type"))
 		types[t.getValue()] = 1;
 
 	setlistener("sim/freeze/fuel", func(n) fuel_freeze = n.getBoolValue(), 1);
