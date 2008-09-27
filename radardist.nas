@@ -14,56 +14,97 @@
 # radar stuff too.
 
 
-var data_path   = getprop("/sim/fg-root") ~ "/Aircraft/Generic/radardist.xml";
+var data_path = getprop("/sim/fg-root") ~ "/Aircraft/Generic/radardist.xml";
 var aircraftData = {};
-var radarData    = [];
+var radarData = [];
+
+mpnode_string = nil;
+var cutname   = nil;
+var mpnode    = nil;
+var mpname_node_string = nil;
+var mpname_node = nil;
+var mpname    = nil;
+var splitname = nil;
+var acname    = nil;
+var rcs_4r    = nil; 
+var radartype = nil; 
+var alt_corr  = nil; 
+var alt_ac    = nil; 
+var agl_corr  = nil; 
+var mp_lon    = nil; 
+var mp_lat    = nil; 
+var pos_elev  = nil; 
+var mp_agl    = nil; 
+var det_range = nil; 
+var act_range = nil;
+var max_range = nil;
+var radar_range = nil;
+var radar_area = nil;
+var have_radar = nil;
+
 
 var FT2M = 0.3048;
 var NM2KM = 1.852;
 
 
-var my_maxrange = func(myaircraft) {
-	var myacname = aircraftData[myaircraft] or 0;
-	var my_radar_area = radarData[myacname][7];
-	var my_radar_range = radarData[myacname][5];
-	#print ("aircraft = " ~ radarData[myacname][1]);
-	#print ("range = " ~ radarData[myacname][5]);
-	#print ("aera = " ~ radarData[myacname][7]);
-	return( my_radar_range / my_radar_area);
+
+
+var my_maxrange = func(a) {
+	max_range = 0;
+	radar_range = 0;
+	radar_area = 0;
+	acname = aircraftData[a] or 0;
+	if ( acname ) {
+		have_radar = radarData[acname][4];
+		if ( have_radar != "none" and  have_radar != "unknown") {
+			radar_area = radarData[acname][7];
+			radar_range = radarData[acname][5];
+			if ( radar_area > 0 ) { max_range = radar_range / radar_area }
+		}
+	}
+	#var plane = radarData[acname][2];
+	#print ("aircraft = " ~ plane);
+	#print ("range = " ~ radar_range);
+	#print ("aera = " ~ radar_area);
+	return( max_range );
 }
 
-
-
-var radis = func(t, my_radarcorr) {
+var get_aircraft_name = func( t ) {
 	# Get the multiplayer aircraft name.
-	var mpnode_string = t;
-	var mpnode =  props.globals.getNode(mpnode_string);
+	mpnode_string = t;
+	mpnode =  props.globals.getNode(mpnode_string);
 	if ( find("tanker", mpnode_string) > 0 ) {
 		#print("tanker");
-		var cutname = "KC135";
+		cutname = "KC135";
 	} else {
-		var mpname_node_string = mpnode_string ~ "/sim/model/path";
-		var mpname_node = props.globals.getNode(mpname_node_string);
+		mpname_node_string = mpnode_string ~ "/sim/model/path";
+		mpname_node = props.globals.getNode(mpname_node_string);
 		#print(mpname_node_string);
 		if (mpname_node == nil) { return(0) }
 
 		var mpname = mpname_node.getValue();
 		if (mpname == nil) { return(0) }
 
-		var splitname = split("/", mpname);
-		var cutname = splitname[1];
+		splitname = split("/", mpname);
+		cutname = splitname[1];
 	}
+	return( cutname );
+}
+
+
+var radis = func(t, my_radarcorr) {
+	cutname = get_aircraft_name(t);
 	# Calculate the rcs detection range,
 	# if aircraft is not found in list, 0 (generic) will be used.
-	var acname = aircraftData[cutname];
+	acname = aircraftData[cutname];
 	if ( acname == nil ) { acname = 0 }
-	var rcs_4r = radarData[acname][3];
-	var radartype = radarData[acname][1];
+	rcs_4r = radarData[acname][3];
+	radartype = radarData[acname][1];
 
 	# Add a correction factor for altitude, as lower alt means
 	# shorter radar distance (due to air turbulence).
-	var alt_corr = 1;
-	var alt_ac = mpnode.getNode("position/altitude-ft").getValue();
+	alt_corr = 1;
+	alt_ac = mpnode.getNode("position/altitude-ft").getValue();
 	if (alt_ac <= 1000) {
 		alt_corr = 0.6;
 	} elsif ((alt_ac > 1000) and (alt_ac <= 5000)) {
@@ -71,13 +112,13 @@ var radis = func(t, my_radarcorr) {
 	}
 
 	# Add a correction factor for altitude AGL.
-	var agl_corr = 1;
-	var mp_lon = mpnode.getNode("position/longitude-deg").getValue();
-	var mp_lat = mpnode.getNode("position/latitude-deg").getValue();
-	var pos_elev = geo.elevation(mp_lat, mp_lon);
+	agl_corr = 1;
+	mp_lon = mpnode.getNode("position/longitude-deg").getValue();
+	mp_lat = mpnode.getNode("position/latitude-deg").getValue();
+	pos_elev = geo.elevation(mp_lat, mp_lon);
 	if (pos_elev != nil) {
 		#print("pos_elev: " ~ pos_elev);
-		var mp_agl = alt_ac - ( pos_elev / FT2M );
+		mp_agl = alt_ac - ( pos_elev / FT2M );
 		if (mp_agl <= 20) {
 			agl_corr = 0.03;
 		} elsif ((mp_agl > 20) and (mp_agl <= 50)) {
@@ -94,12 +135,12 @@ var radis = func(t, my_radarcorr) {
 	}
 
 	# Calculate the detection distance for this multiplayer.
-	var det_range = my_radarcorr * rcs_4r * alt_corr * agl_corr / NM2KM;
+	det_range = my_radarcorr * rcs_4r * alt_corr * agl_corr / NM2KM;
 	#print (radartype);
 	#print (rcs_4r);
 
 	### Compare if aircraft is in detection range and return.
-	var act_range = mpnode.getNode("radar/range-nm").getValue() or 500;
+	act_range = mpnode.getNode("radar/range-nm").getValue() or 500;
 	#print (det_range ~ " " ~ act_range);
 	if (det_range >= act_range) {
 		#print("paint it");

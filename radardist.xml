@@ -372,7 +372,7 @@ max. radar range target seize(RCS)m2, 4th root of radar RCS -->
 				</aircraft>
 				<aircraft n="39">
 					<name n="0">f-15</name>
-					<name n="1">f-15c</name>
+					<name n="1">f15c</name>
 					<rcs-sq-meter>30</rcs-sq-meter>
 					<rcs-4th-root>2.34</rcs-4th-root>
 					<radar-type>APG-70</radar-type>
