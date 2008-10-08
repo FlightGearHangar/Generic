@@ -22,7 +22,7 @@
 				</less-than>
 				<greater-than>
 					<property>orientation/pitch-deg</property>
-					<value>3</value>
+					<value>2.5</value>
 				</greater-than>
 			</and>
 		</condition>
