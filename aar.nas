@@ -164,7 +164,7 @@ setlistener("/sim/signals/fdm-initialized", func {
 	if (contains(globals, "fuel") and typeof(fuel) == "hash")
 		fuel.loop = func nil;       # kill $FG_ROOT/Nasal/fuel.nas' loop
 
-	refuelingN = props.initNode("/systems/refuel/contact", 0, "BOOL");
+	refuelingN = props.globals.initNode("/systems/refuel/contact", 0, "BOOL");
 	aimodelsN = props.globals.getNode("ai/models", 1);
 	engines = props.globals.getNode("engines", 1).getChildren("engine");
 
@@ -178,11 +178,11 @@ setlistener("/sim/signals/fdm-initialized", func {
 			continue;           # skip native_fdm.cxx generated zombie tanks
 
 		append(tanks, t);
-		props.initNode(t.getNode("level-gal_us", 1), 0.0);
-		props.initNode(t.getNode("level-lbs", 1), 0.0);
-		props.initNode(t.getNode("capacity-gal_us", 1), 0.01); # not zero (div/zero issue)
-		props.initNode(t.getNode("density-ppg", 1), 6.0);      # gasoline
-		props.initNode(t.getNode("selected", 1), 1, "BOOL");
+		t.initNode("level-gal_us", 0.0);
+		t.initNode("level-lbs", 0.0);
+		t.initNode("capacity-gal_us", 0.01); # not zero (div/zero issue)
+		t.initNode("density-ppg", 6.0);      # gasoline
+		t.initNode("selected", 1, "BOOL");
 	}
 
 	foreach (var t; props.globals.getNode("systems/refuel", 1).getChildren("type"))
