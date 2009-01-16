@@ -24,6 +24,10 @@
 					<property>orientation/pitch-deg</property>
 					<value>2.5</value>
 				</greater-than>
+				<equals>
+					<property>engines/engine[0]/running</property>
+					<value>1</value>
+				</equals>
 			</and>
 		</condition>
 

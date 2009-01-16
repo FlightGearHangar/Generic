@@ -15,22 +15,22 @@
 		</offsets>
 
 		<condition>
-				<property>/gear/gear[0]/tyre-smoke</property>
+				<property>gear/gear[0]/tyre-smoke</property>
 				<value>1</value>
 		</condition>
 
 		<!--<condition>
 			<or>
-				<property>/gear/gear[0]/wow</property>
-				<property>/gear/gear[2]/wow</property>
+				<property>gear/gear[0]/wow</property>
+				<property>gear/gear[2]/wow</property>
 			</or>
 		</condition>
 		<volume>
-			<property>/velocities/speed-down-fps</property>
+			<property>velocities/speed-down-fps</property>
 			<factor>0.05</factor>
 		</volume>
 		<volume>
-			<property>/velocities/airspeed-kt</property>
+			<property>velocities/airspeed-kt</property>
 			<factor>0.01</factor>
 		</volume>-->
 

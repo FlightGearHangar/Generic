@@ -15,7 +15,7 @@
 		</offsets>
 
 		<condition>
-				<property>/gear/gear[2]/spray</property>
+				<property>gear/gear[2]/spray</property>
 				<value>1</value>
 		</condition>
 
