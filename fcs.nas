@@ -907,5 +907,5 @@ confNode.setValues(default_fcs_params);
 # fcs-initialized signal must be set by per-aircraft nasal script
 # to show that FCS configuration parameters are set
 #
-_setlistener("/sim/signals/fcs-initialized", initialize);
+setlistener("/sim/signals/fcs-initialized", initialize);
 
