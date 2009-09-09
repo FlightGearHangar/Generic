@@ -95,7 +95,7 @@ var elevatorControl         = propFlightControls.getNode("elevator", 0);
 var elevatorTrimControl     = propFlightControls.getNode("elevator-trim", 0);
 
 var headingNeedleDeflection = "/instrumentation/nav/heading-needle-deflection";
-var gsNeedleDeflection = "/instrumentation/nav/gs-needle-deflection";
+var gsNeedleDeflection = "/instrumentation/nav/gs-needle-deflection-norm";
 var staticPressure = "systems/static/pressure-inhg";
 
 var pressureUnits = { "inHg" : 0, "hPa" : 1 };
@@ -912,19 +912,19 @@ var gsArm = func {
 
   var deviation = getprop(gsNeedleDeflection);
   ##
-  # If the deflection is more than 1 degrees wait 5 seconds and check again.
+  # If the deflection is more than 50% (manual says '2 to 3 dots')
   ##
-  if (abs(deviation) > 1.0)
+  if (abs(deviation) > 0.5)
   {
     #print("deviation");
     settimer(gsArm, 5);
     return;
   }
   ##
-  # If the deviation is less than 1 degrees turn off the GS-ARM annunciator
+  # If the deviation is less than 50% turn off the GS-ARM annunciator
   # and show the GS annunciator. Activate the GS pitch mode.
   ##
-  elsif (abs(deviation) < 1.1)
+  else
   {
     #print("capture");
     annunciatorAlt.setBoolValue(0);
