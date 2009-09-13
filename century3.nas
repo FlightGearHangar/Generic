@@ -86,7 +86,7 @@ var pitchControl            = propAutopilotControls.getNode("pitch", 1);
 # values 0 (PITCH switch off)  1 (PITCH switch on)
 
 var headingNeedleDeflection = "/instrumentation/nav/heading-needle-deflection";
-var gsNeedleDeflection = "/instrumentation/nav/gs-needle-deflection";
+var gsNeedleDeflection = "/instrumentation/nav/gs-needle-deflection-deg";
 var indicatedPitchDeg =  "/instrumentation/attitude-indicator/indicated-pitch-deg";
 var staticPressure = "/systems/static/pressure-inhg";
 var altitudePressure = "/autopilot/CENTURYIII/settings/target-alt-pressure";
@@ -580,18 +580,18 @@ var gsArm = func {
 
   deviation = getprop(gsNeedleDeflection);
   ##
-  # If the deflection is more than 0.25 degrees wait 5 seconds and check again.
+  # If the deflection is more than 0.1 degrees wait 1 seconds and check again.
   ##
-  if (abs(deviation) > 0.25)
+  if (abs(deviation) > 0.1)
   {
     #print("deviation");
-    settimer(gsArm, 5);
+    settimer(gsArm, 1);
     return;
   }
   ##
-  # If the deviation is less than 1 then activate the GS pitch mode.
+  # If the deviation is less than 0.1 then activate the GS pitch mode.
   ##
-  elsif (abs(deviation) < 0.251)
+  elsif (abs(deviation) < 0.1)
   {
     #print("capture");
     lockAltHold.setBoolValue(0);
