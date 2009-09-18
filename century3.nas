@@ -86,7 +86,9 @@ var pitchControl            = propAutopilotControls.getNode("pitch", 1);
 # values 0 (PITCH switch off)  1 (PITCH switch on)
 
 var headingNeedleDeflection = "/instrumentation/nav/heading-needle-deflection";
+var gsInRange = "/instrumentation/nav/gs-in-range";
 var gsNeedleDeflection = "/instrumentation/nav/gs-needle-deflection-deg";
+var elapsedTimeSec = "/sim/time/elapsed-sec";
 var indicatedPitchDeg =  "/instrumentation/attitude-indicator/indicated-pitch-deg";
 var staticPressure = "/systems/static/pressure-inhg";
 var altitudePressure = "/autopilot/CENTURYIII/settings/target-alt-pressure";
@@ -96,7 +98,6 @@ var filteredHeadingNeedleDeflection = "/autopilot/internal/filtered-heading-need
 
 var pressureUnits = { "inHg" : 0, "hPa" : 1 };
 var altPressure = 0.0;
-var gsTimeCheck = 0.0;
 var valueTest = 0;
 var lastValue = 0;
 var newValue = 0;
@@ -104,6 +105,8 @@ var minVoltageLimit = 8.0;
 var newMode = 2;
 var oldMode = 2;
 var deviation = 0;
+var LocModeTimeSec = 0;
+var AltTimeSec = 0;
 rollControl.setDoubleValue(0.0);
 hdgControl.setDoubleValue(0.0);
 altControl.setDoubleValue(0.0);
@@ -507,6 +510,12 @@ var aprButton = func {
   ##print("aprButton");
 #  Disable button if too little power
   if (getprop(power) < minVoltageLimit) { return; }
+  ##
+  #  Save the elapsed time when mode switch was set to LOC Norm.
+  #  This is used to delay the gsArm at least 20 sec after the mode is set to LOC Norm.
+  #  See comment by Figure 24, page 30 in "CENTURY II Autopilot Flight System POH".
+  ##  
+  LocModeTimeSec = getprop(elapsedTimeSec);
 
   ##
   # The Mode Selector and DG Course Selector should be set before switching the HDG 
@@ -521,7 +530,6 @@ var aprButton = func {
     lockRollAxis.setBoolValue(1);
     lockRollArm.setIntValue(rollArmModes["APR"]);
     lockRollMode.setIntValue(rollModes["APR"]);
-    gsTimeCheck = -1;
 
     aprArmFromHdg();
 }
@@ -533,15 +541,9 @@ var aprArmFromHdg = func
   # else than APR-ARM.
   ##
   if (lockRollArm.getValue() != rollArmModes["APR"]
-      or !lockAltHold.getValue()
-      or getprop(gsNeedleDeflection) < 0.0)
+      or !lockAltHold.getValue())
   {
     return;
-  }
-  gsTimeCheck = gsTimeCheck + 1;
-  if (gsTimeCheck < 20)
-  {
-    settimer(aprArmFromHdg, 1.0);
   }
 
   ##
@@ -564,6 +566,7 @@ var aprArmFromHdg = func
   elsif (abs(deviation) < 2.5)
   {
     lockPitchArm.setIntValue(pitchArmModes["GS"]);
+
     gsArm();
   }
 }
@@ -577,21 +580,45 @@ var gsArm = func {
   {
     return;
   }
-
+  ##
+  #  Loop until the LOC Norm mode has been set for at least 20 seconds
+  #  and the Alt switch has been on for at least 20 seconds.
+  #  See page 30 in "CENTURY II Autopilot Flight System POH".
+  ##
+  if ( (getprop(elapsedTimeSec) - LocModeTimeSec) < 20 
+    or (getprop(elapsedTimeSec) - AltTimeSec) < 20 )
+  {
+    settimer(gsArm, 2);
+    return;
+  }
+  ##
+  #  Loop until gs is in range
+  ##
+  if (!getprop(gsInRange))
+  {
+    settimer(gsArm, 2);
+    return;
+  }
   deviation = getprop(gsNeedleDeflection);
   ##
-  # If the deflection is more than 0.1 degrees wait 1 seconds and check again.
+  #  Abort if above the glide slope as you have passed the gs intercept
+  if (deviation < 0)
+  {
+    return;
+  }
   ##
-  if (abs(deviation) > 0.1)
+  # If the deflection is more than 0.2 degrees wait 2 seconds and check again.
+  ##
+  if (abs(deviation) > 0.2)
   {
     #print("deviation");
-    settimer(gsArm, 1);
+    settimer(gsArm, 2);
     return;
   }
   ##
   # If the deviation is less than 0.1 then activate the GS pitch mode.
   ##
-  elsif (abs(deviation) < 0.1)
+  elsif (abs(deviation) < 0.2)
   {
     #print("capture");
     lockAltHold.setBoolValue(0);
@@ -675,6 +702,12 @@ var altButton = func(switch_on) {
   if (getprop(power) < minVoltageLimit) { return; }
 
   if (switch_on) {
+    ##
+    #  Save the elapsed time when Alt switch was turned on.
+    #  This is used to delay the gsArm at least 20 sec after the Alt switch is turned on.
+    #  See comment by Figure 25, page 30 in "CENTURY II Autopilot Flight System POH".
+    ##  
+    AltTimeSec = getprop(elapsedTimeSec);
     lockAltHold.setBoolValue(1);
     lockPitchAxis.setBoolValue(1);
 #    lockPitchMode.setIntValue(pitchModes["ALT"]);
@@ -685,6 +718,11 @@ var altButton = func(switch_on) {
     if ( getprop(enableAutoTrim) ) {
        settingAutoPitchTrim.setDoubleValue(1);
     }
+    ##
+    #  Handle case where mode is LOC Norm and ALT switch is turned off and then back on.
+    #  e.g. When descending to a lower GS intercept altitude in a step-down approach
+    ##
+    if (oldMode == 3) { apModeControlsSet(); }
   } else {
     lockAltHold.setBoolValue(0);
     lockPitchAxis.setBoolValue(0);
