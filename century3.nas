@@ -607,18 +607,18 @@ var gsArm = func {
     return;
   }
   ##
-  # If the deflection is more than 0.2 degrees wait 2 seconds and check again.
+  # If the deflection is more than 0.1 degrees wait 2 seconds and check again.
   ##
-  if (abs(deviation) > 0.2)
+  if (abs(deviation) > 0.1)
   {
     #print("deviation");
     settimer(gsArm, 2);
     return;
   }
   ##
-  # If the deviation is less than 0.1 then activate the GS pitch mode.
+  # The deviation is less than 0.1 then activate the GS pitch mode.
   ##
-  elsif (abs(deviation) < 0.2)
+  else
   {
     #print("capture");
     lockAltHold.setBoolValue(0);
