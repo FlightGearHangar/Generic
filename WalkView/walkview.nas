@@ -26,8 +26,57 @@ var forward = func (speed) {
     }
 }
 
+# Set the side step speed of the active walker.
+#   speed - walker speed in m/sec
+#   Returns 1 of there is an active walker and 0 otherwise.
+var side_step = func (speed) {
+    var cv = view.current.getPath();
+    if (contains(walkers, cv)) {
+        walkers[cv].side_step(speed);
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
 ###############################################################################
 # The walker class.
+# ==============================================================================
+# Class for a moving view.
+#
+# CONSTRUCTOR:
+#       walker.new(<view name>, <constraints>);
+#
+#         view name    ... The name of the view     : string
+#         constraints  ... The movement constraints : constraint hash
+#
+# METHODS:
+#       active() : bool
+#         returns true if this walk view is active.
+#
+#       forward(speed)
+#           Sets the forward speed of this walk view.
+#         speed  ... speed in m/sec : double
+#
+#       side_step(speed)
+#           Sets the side step speed of this walk view.
+#         speed  ... speed in m/sec : double
+#
+#       set_pos(pos)
+#       get_pos() : position
+#
+#       set_eye_height(h)
+#       get_eye_height() : int (meter)
+#
+#       set_constraints(constraints)
+#       get_constraints() : contraint hash
+#
+# EXAMPLE:
+#       var constraint =
+#           walkview.slopingYAlignedPlane.new([19.1, -0.3, -8.85],
+#                                             [19.5,  0.3, -8.85]);
+#       var walker = walkview.walker.new("Passenger View", constraint);
+#
 var walker = {
     new : func (view_name, constraints = nil) {
         var obj = { parents : [walker] };
@@ -40,10 +89,12 @@ var walker = {
             ];
         obj.heading =
             obj.view.getNode("config/heading-offset-deg").getValue();
-        obj.speed    = 0.0;
+        obj.speed_fwd  = 0.0;
+        obj.speed_side = 0.0;
         obj.id       = 0;
         obj.isactive = 0;
-        obj.eye_height = 1.60;
+        obj.eye_height  = 1.60;
+        obj.goal_height = obj.position[2] + obj.eye_height;
 
         # Register this walker.
         view.manager.register(view_name, obj);
@@ -56,7 +107,10 @@ var walker = {
         return me.isactive;
     },
     forward : func (speed) {
-        me.speed = speed;
+        me.speed_fwd = speed;
+    },
+    side_step : func (speed) {
+        me.speed_side = speed;
     },
     set_pos : func (pos) {
         me.position[0] = pos[0];
@@ -65,6 +119,12 @@ var walker = {
     },
     get_pos : func {
         return me.position;
+    },
+    set_eye_height : func (h) {
+        me.eye_height = h;
+    },
+    get_eye_height : func {
+        return me.eye_height;
     },
     set_constraints : func (constraints) {
         me.constraints = constraints;
@@ -77,8 +137,9 @@ var walker = {
     },
     start  : func {
         me.isactive = 1;
-        me.last_time = getprop("/sim/time/elapsed-sec");
+        me.last_time = getprop("/sim/time/elapsed-sec") - 0.0001;
         me.update();
+        me.position[2] = me.goal_height;
         settimer(func { me._loop_(me.id); }, 0.0);
     },
     stop   : func {
@@ -94,18 +155,31 @@ var walker = {
         var cur = props.globals.getNode("/sim/current-view");
         me.heading = cur.getNode("heading-offset-deg").getValue();
 
-        me.position[0] -= me.speed * dt * math.cos(me.heading * RAD);
-        me.position[1] -= me.speed * dt * math.sin(me.heading * RAD);
+        me.position[0] -=
+            me.speed_fwd  * dt * math.cos(me.heading * RAD) +
+            me.speed_side * dt * math.sin(me.heading * RAD);
+        me.position[1] -=
+            me.speed_fwd  * dt * math.sin(me.heading * RAD) -
+            me.speed_side * dt * math.cos(me.heading * RAD);
 
+        var cur_height = me.position[2];
         if (me.constraints != nil) {
             me.position     = me.constraints.constrain(me.position);
-            me.position[2] += me.eye_height;
-            cur.getNode("y-offset-m").setValue(me.position[2]);
+            me.goal_height  = me.position[2] + me.eye_height;
+        }
+        # Change the view height smoothly
+        if (math.abs(me.goal_height - cur_height) > 2.0 * dt) {
+            me.position[2] =
+                cur_height +
+                2.0 * dt *
+                ((me.goal_height > cur_height) ? 1 : -1);
+        } else {
+            me.position[2] = me.goal_height;
         }
 
         cur.getNode("z-offset-m").setValue(me.position[0]);
         cur.getNode("x-offset-m").setValue(me.position[1]);
-        #cur.getNode("y-offset-m").setValue(me.position[2]);
+        cur.getNode("y-offset-m").setValue(me.position[2]);
 
         me.last_time = t;
     },
@@ -175,6 +249,43 @@ var slopingYAlignedPlane = {
         p[2] = me.minp[2] + me.kxz * (pos[0] - me.minp[0]);
         return p;
     },
+};
+
+# Action constraint
+#   Triggers an action when entering or exiting the constraint.
+#   contraint       - the area in question.
+#   on_enter        - function that is called when the walker enters the area.
+#   on_exit(x, y)   - function that is called when the walker leaves the area.
+#                     x and y are <0, 0 or >0 depending on in which direction(s)
+#                     the walker left the constraint.
+var actionConstraint = {
+    new : func (constraint, on_enter = nil, on_exit = nil) {
+        var obj = { parents : [actionConstraint] };
+        obj.constraint = constraint;
+        obj.on_enter   = on_enter;
+        obj.on_exit    = on_exit;
+        obj.inside     = 0;
+        return obj;
+    },
+    constrain : func (pos) {
+        var p = me.constraint.constrain(pos);
+        if (p[0] == pos[0] and p[1] == pos[1]) {
+            if (!me.inside) {
+                me.inside = 1;
+                if (me.on_enter != nil) {
+                    me.on_enter();
+                }
+            }
+        } else {
+            if (me.inside) {
+                me.inside -= 1;
+                if (!me.inside and me.on_exit != nil) {
+                    me.on_exit(pos[0] - p[0], pos[1] - p[1]);
+                }
+            }
+        }
+        return p;
+    }
 };
 
 ###############################################################################
