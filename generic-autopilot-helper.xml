@@ -116,7 +116,7 @@
   <filter>
     <name>static port pressure rate computer</name>
     <debug>false</debug>
-    <type>differential</type>
+    <type>derivative</type>
     <input>systems/static[0]/pressure-inhg</input>
     <output>autopilot/internal/pressure-rate</output>
     <filter-time>1.0</filter-time>
