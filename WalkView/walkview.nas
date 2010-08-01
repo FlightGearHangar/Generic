@@ -12,6 +12,8 @@
 # Global API. Automatically selects the right walker for the current view.
 
 # NOTE: Coordinates are always 3 component lists: [x, y, z].
+# The coordinate system is the same as the main 3d model one.
+# X - back, Y - right and Z - up.
 
 # Set the forward speed of the active walker.
 #   speed - walker speed in m/sec
@@ -36,6 +38,17 @@ var side_step = func (speed) {
         return 1;
     } else {
         return 0;
+    }
+}
+
+# Get the currently active walker.
+#   Returns the active walker object or nil otherwise.
+var active_walker = func {
+    var cv = view.current.getPath();
+    if (contains(walkers, cv)) {
+        return walkers[cv];
+    } else {
+        return nil;
     }
 }
 
@@ -76,6 +89,10 @@ var side_step = func (speed) {
 #           walkview.slopingYAlignedPlane.new([19.1, -0.3, -8.85],
 #                                             [19.5,  0.3, -8.85]);
 #       var walker = walkview.walker.new("Passenger View", constraint);
+#
+# NOTES:
+#       Currently there can only be one view manager per view so the
+#       walk view should not have any other view manager.
 #
 var walker = {
     new : func (view_name, constraints = nil) {
