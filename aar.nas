@@ -32,6 +32,8 @@ var update_loop = func {
 		var mp = aimodelsN.getChildren("multiplayer");
 
 		foreach (var a; ac ~ mp) {
+			if (!a.getNode("valid", 1).getValue())
+				continue;
 			if (!a.getNode("tanker", 1).getValue())
 				continue;
 			if (!a.getNode("refuel/contact", 1).getValue())
