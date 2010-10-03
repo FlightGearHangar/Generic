@@ -362,7 +362,7 @@ var TO_DEG = 180/math.pi;
 var walkers = {};
 
 var closerXY = func (pos, p1, p2) {
-    l1 = [p1[0] - pos[0], p1[1] - pos[1]];
-    l2 = [p2[0] - pos[0], p2[1] - pos[1]];
+    var l1 = [p1[0] - pos[0], p1[1] - pos[1]];
+    var l2 = [p2[0] - pos[0], p2[1] - pos[1]];
     return (l1[0]*l1[0] + l1[1]*l1[1]) - (l2[0]*l2[0] + l2[1]*l2[1]);
 }
