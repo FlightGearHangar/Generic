@@ -100,7 +100,8 @@ var active_walker = func {
 # NOTES:
 #       Currently there can only be one view manager per view so the
 #       walk view should not have any other view manager.
-#
+#       See Aircraft/Nordstern, Aircraft/Short_Empire or Aircraft/ZLT-NT
+#       for working examples of walk views.
 var walker = {
     new : func (view_name, constraints = nil, managers = nil) {
         var obj = { parents : [walker] };
@@ -124,7 +125,7 @@ var walker = {
         view.manager.register(view_name, obj);
         walkers[obj.view.getPath()] = obj;
 
-        debug.dump(obj);
+        #debug.dump(obj);
         return obj;
     },
     active : func {
@@ -216,6 +217,8 @@ var walker = {
 
 ###############################################################################
 # Constraint classes. Determines where the view can walk.
+#
+
 
 # The union of two constraints.
 #   c1, c2 - the constraints : constraint
