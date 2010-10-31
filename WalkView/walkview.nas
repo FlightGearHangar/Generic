@@ -97,11 +97,12 @@ var active_walker = func {
 #                                             [19.5,  0.3, -8.85]);
 #       var walker = walkview.walker.new("Passenger View", constraint);
 #
+#       See Aircraft/Nordstern, Aircraft/Short_Empire and Aircraft/ZLT-NT
+#       for working examples of walk views.
+#
 # NOTES:
 #       Currently there can only be one view manager per view so the
 #       walk view should not have any other view manager.
-#       See Aircraft/Nordstern, Aircraft/Short_Empire or Aircraft/ZLT-NT
-#       for working examples of walk views.
 var walker = {
     new : func (view_name, constraints = nil, managers = nil) {
         var obj = { parents : [walker] };
@@ -259,26 +260,55 @@ var makeUnionConstraint = func (cs) {
     return ret;
 }
 
+# Rectangular plane defined by a straight line and a width.
+# The line is extruded horizontally on each side by width/2 into a
+# planar surface.
+#   p1, p2 - the line endpoints.
+#   width  - total width of the plane.
+var linePlane = {
+    new : func (p1, p2, width) {
+        var obj = { parents : [linePlane] };
+        obj.p1         = p1;
+        obj.p2         = p2;
+        obj.halfwidth  = width/2;
+        obj.length     = vec2.length(vec2.sub(p2, p1));
+        obj.e1         = vec2.normalize(vec2.sub(p2, p1));
+        obj.e2         = [obj.e1[1], -obj.e1[0]];
+        obj.k          = (p2[2] - p1[2]) / obj.length;
+
+        return obj;
+    },
+    constrain : func (pos) {
+        var p      = [pos[0], pos[1], pos[2]];
+        var pXY    = vec2.sub(pos, me.p1);
+        var along  = vec2.dot(pXY, me.e1);
+        var across = vec2.dot(pXY, me.e2);
+        
+        var along2  = max(0, min(along, me.length));
+        var across2 = max(-me.halfwidth, min(across, me.halfwidth));
+        if (along2 != along or across2 != across) {
+            # Compute new XY position.
+            var t = vec2.add(vec2.mul(along2, me.e1), vec2.mul(across2, me.e2));
+            p[0] = me.p1[0] + t[0];
+            p[1] = me.p1[1] + t[1];
+        }
+
+        # Compute Z positition.
+        p[2] = me.p1[2] + me.k * along2;
+        return p;
+    }
+};
+
 # Mostly aligned plane sloping along the X axis.
+# NOTE: Obsolete. Use linePlane instead.
 #   minp - the X,Y minimum point : position (meter)
 #   maxp - the X,Y maximum point : position (meter)
 var slopingYAlignedPlane = {
     new : func (minp, maxp) {
-        var obj = { parents : [slopingYAlignedPlane] };
-        obj.minp = minp;
-        obj.maxp = maxp;
-        obj.kxz  = (maxp[2] - minp[2])/(maxp[0] - minp[0]);
-        return obj;
-    },
-    constrain : func (pos) {
-        var p = [pos[0], pos[1], pos[2]];
-        if (pos[0] < me.minp[0]) p[0] = me.minp[0];
-        if (pos[0] > me.maxp[0]) p[0] = me.maxp[0];
-        if (pos[1] < me.minp[1]) p[1] = me.minp[1];
-        if (pos[1] > me.maxp[1]) p[1] = me.maxp[1];
-        p[2] = me.minp[2] + me.kxz * (pos[0] - me.minp[0]);
-        return p;
-    },
+        return linePlane.new([minp[0], (minp[1] + maxp[1])/2, minp[2]],
+                             [maxp[0], (minp[1] + maxp[1])/2, maxp[2]],
+                             (maxp[1] - minp[1]));
+    }
 };
 
 # Action constraint
@@ -368,4 +398,34 @@ var closerXY = func (pos, p1, p2) {
     var l1 = [p1[0] - pos[0], p1[1] - pos[1]];
     var l2 = [p2[0] - pos[0], p2[1] - pos[1]];
     return (l1[0]*l1[0] + l1[1]*l1[1]) - (l2[0]*l2[0] + l2[1]*l2[1]);
+}
+
+var max = func (a, b) {
+    return b > a ? b : a;
+}
+var min = func (a, b) {
+    return a > b ? b : a;
+}
+
+# 2D vector math.
+var vec2 = {
+    add : func (a, b) {
+        return [a[0] + b[0], a[1] + b[1]];
+    },
+    sub : func (a, b) {
+        return [a[0] - b[0], a[1] - b[1]];
+    },
+    mul : func (k, a) {
+        return [k * a[0], k * a[1]];
+    },
+    length : func (a) {
+        return math.sqrt(a[0]*a[0] + a[1]*a[1]);
+    },
+    dot : func (a, b) {
+        return a[0]*b[0] + a[1]*b[1];
+    },
+    normalize : func (a) {
+        var s = 1/vec2.length(a);
+        return [s * a[0], s * a[1]];
+    }
 }
