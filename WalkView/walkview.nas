@@ -221,6 +221,43 @@ var Walker = {
 # Constraint classes. Determines where the view can walk.
 #
 
+# Convenience functions.
+
+# Build a UnionConstraint hierarchy from a list of constraints.
+#   cs - list of constraints : [constraint]
+var makeUnionConstraint = func (cs) {
+    if (size(cs) < 2) return cs[0];
+    
+    var ret = cs[0];
+    for (var i = 1; i < size(cs); i += 1) {
+        ret = UnionConstraint.new(ret, cs[i]);
+    }
+    return ret;
+}
+
+# Build a UnionConstraint hierachy that represents a polyline path
+# with a certain width. Each internal point gets a circular surface.
+#   points     - list of points    : [position] ([[meter, meter, meter]])
+#   width      - width of the path : length   (meter)
+#   round_ends - put a circle also on the first and last points : bool
+var makePolylinePath = func (points, width, round_ends = 0) {
+    if (size(points) < 2) return nil;
+    var ret = LinePlane.new(points[0], points[1], width);
+    if (round_ends) {
+        ret = UnionConstraint.new(line,
+                                  CircularXYSurface.new(points[0], width/2));
+    }
+    for (var i = 2; i < size(points); i += 1) {
+        var line = LinePlane.new(points[i-1], points[i], width);
+        if (i + 1 < size(points) or round_ends) {
+            line = UnionConstraint.new
+                       (line,
+                        CircularXYSurface.new(points[i], width/2));
+        }
+        ret = UnionConstraint.new(line, ret);
+    }
+    return ret;
+}
 
 # The union of two constraints.
 #   c1, c2 - the constraints : constraint
@@ -248,18 +285,6 @@ var UnionConstraint = {
         }
     }
 };
-
-# Build a unionConstraint hierarchy from a list of constraints.
-#   cs - list of constraints : [constraint]
-var makeUnionConstraint = func (cs) {
-    if (size(cs) < 2) return cs[0];
-    
-    var ret = cs[0];
-    for (var i = 1; i < size(cs); i += 1) {
-        ret = UnionConstraint.new(ret, cs[i]);
-    }
-    return ret;
-}
 
 # Rectangular plane defined by a straight line and a width.
 # The line is extruded horizontally on each side by width/2 into a
