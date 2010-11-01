@@ -83,7 +83,8 @@ var active_walker = func {
 #         speed  ... speed in m/sec : double
 #
 #       set_pos(pos)
-#       get_pos() : position
+#         pos ... position in meter : [double, double, double]
+#       get_pos() : position ([meter, meter, meter])
 #
 #       set_eye_height(h)
 #       get_eye_height() : int (meter)
@@ -263,8 +264,8 @@ var makeUnionConstraint = func (cs) {
 # Rectangular plane defined by a straight line and a width.
 # The line is extruded horizontally on each side by width/2 into a
 # planar surface.
-#   p1, p2 - the line endpoints.
-#   width  - total width of the plane.
+#   p1, p2 - the line endpoints.       : position ([meter, meter, meter])
+#   width  - total width of the plane. : length   (meter)
 var linePlane = {
     new : func (p1, p2, width) {
         var obj = { parents : [linePlane] };
@@ -283,7 +284,7 @@ var linePlane = {
         var pXY    = vec2.sub(pos, me.p1);
         var along  = vec2.dot(pXY, me.e1);
         var across = vec2.dot(pXY, me.e2);
-        
+
         var along2  = max(0, min(along, me.length));
         var across2 = max(-me.halfwidth, min(across, me.halfwidth));
         if (along2 != along or across2 != across) {
@@ -299,10 +300,35 @@ var linePlane = {
     }
 };
 
+# Circular surface aligned with the XY plane
+#   center - the center point       : position ([meter, meter, meter])
+#   radius - radius in the XY plane : length   (meter)
+var CircularXYSurface = {
+    new : func (center, radius) {
+        var obj = { parents : [CircularXYSurface] };
+        obj.center     = center;
+        obj.radius     = radius;
+
+        return obj;
+    },
+    constrain : func (pos) {
+        var p   = [pos[0], pos[1], me.center[2]];
+        var pXY = vec2.sub(pos, me.center);
+        var lXY = vec2.length(pXY);
+
+        if (lXY > me.radius) {
+            var t = vec2.add(me.center, vec2.mul(me.radius/lXY, pXY));
+            p[0] = t[0];
+            p[1] = t[1];
+        }
+        return p;
+    },
+};
+
 # Mostly aligned plane sloping along the X axis.
 # NOTE: Obsolete. Use linePlane instead.
-#   minp - the X,Y minimum point : position (meter)
-#   maxp - the X,Y maximum point : position (meter)
+#   minp - the X,Y minimum point : position ([meter, meter, meter])
+#   maxp - the X,Y maximum point : position ([meter, meter, meter])
 var slopingYAlignedPlane = {
     new : func (minp, maxp) {
         return linePlane.new([minp[0], (minp[1] + maxp[1])/2, minp[2]],
