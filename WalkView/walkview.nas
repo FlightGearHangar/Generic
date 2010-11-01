@@ -104,9 +104,9 @@ var active_walker = func {
 # NOTES:
 #       Currently there can only be one view manager per view so the
 #       walk view should not have any other view manager.
-var walker = {
+var Walker = {
     new : func (view_name, constraints = nil, managers = nil) {
-        var obj = { parents : [walker] };
+        var obj = { parents : [Walker] };
         obj.view        = view.views[view.indexof(view_name)];
         obj.constraints = constraints;
         obj.managers    = managers;
@@ -225,9 +225,9 @@ var walker = {
 # The union of two constraints.
 #   c1, c2 - the constraints : constraint
 # NOTE: Assumes that the constraints are convex.
-var unionConstraint = {
+var UnionConstraint = {
     new : func (c1, c2) {
-        var obj = { parents : [unionConstraint] };
+        var obj = { parents : [UnionConstraint] };
         obj.c1 = c1;
         obj.c2 = c2;
         return obj;
@@ -256,7 +256,7 @@ var makeUnionConstraint = func (cs) {
     
     var ret = cs[0];
     for (var i = 1; i < size(cs); i += 1) {
-        ret = unionConstraint.new(ret, cs[i]);
+        ret = UnionConstraint.new(ret, cs[i]);
     }
     return ret;
 }
@@ -266,9 +266,9 @@ var makeUnionConstraint = func (cs) {
 # planar surface.
 #   p1, p2 - the line endpoints.       : position ([meter, meter, meter])
 #   width  - total width of the plane. : length   (meter)
-var linePlane = {
+var LinePlane = {
     new : func (p1, p2, width) {
-        var obj = { parents : [linePlane] };
+        var obj = { parents : [LinePlane] };
         obj.p1         = p1;
         obj.p2         = p2;
         obj.halfwidth  = width/2;
@@ -329,9 +329,9 @@ var CircularXYSurface = {
 # NOTE: Obsolete. Use linePlane instead.
 #   minp - the X,Y minimum point : position ([meter, meter, meter])
 #   maxp - the X,Y maximum point : position ([meter, meter, meter])
-var slopingYAlignedPlane = {
+var SlopingYAlignedPlane = {
     new : func (minp, maxp) {
-        return linePlane.new([minp[0], (minp[1] + maxp[1])/2, minp[2]],
+        return LinePlane.new([minp[0], (minp[1] + maxp[1])/2, minp[2]],
                              [maxp[0], (minp[1] + maxp[1])/2, maxp[2]],
                              (maxp[1] - minp[1]));
     }
@@ -344,9 +344,9 @@ var slopingYAlignedPlane = {
 #   on_exit(x, y)   - function that is called when the walker leaves the area.
 #                     x and y are <0, 0 or >0 depending on in which direction(s)
 #                     the walker left the constraint.
-var actionConstraint = {
+var ActionConstraint = {
     new : func (constraint, on_enter = nil, on_exit = nil) {
-        var obj = { parents : [actionConstraint] };
+        var obj = { parents : [ActionConstraint] };
         obj.constraint = constraint;
         obj.on_enter   = on_enter;
         obj.on_exit    = on_exit;
