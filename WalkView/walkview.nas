@@ -107,6 +107,7 @@ var active_walker = func {
 var Walker = {
     new : func (view_name, constraints = nil, managers = nil) {
         var obj = { parents : [Walker] };
+        obj.view_name   = view_name;
         obj.view        = view.views[view.indexof(view_name)];
         obj.constraints = constraints;
         obj.managers    = managers;
@@ -180,17 +181,26 @@ var Walker = {
         var cur = props.globals.getNode("/sim/current-view");
         me.heading = cur.getNode("heading-offset-deg").getValue();
 
-        me.position[0] -=
-            me.speed_fwd  * dt * math.cos(me.heading * TO_RAD) +
-            me.speed_side * dt * math.sin(me.heading * TO_RAD);
-        me.position[1] -=
-            me.speed_fwd  * dt * math.sin(me.heading * TO_RAD) -
-            me.speed_side * dt * math.cos(me.heading * TO_RAD);
+        var new_pos =
+            [me.position[0] -
+             me.speed_fwd  * dt * math.cos(me.heading * TO_RAD) +
+             me.speed_side * dt * math.sin(me.heading * TO_RAD),
+             me.position[1] -
+             me.speed_fwd  * dt * math.sin(me.heading * TO_RAD) -
+             me.speed_side * dt * math.cos(me.heading * TO_RAD),
+             me.position[2]];
 
         var cur_height = me.position[2];
         if (me.constraints != nil) {
-            me.position     = me.constraints.constrain(me.position);
-            me.goal_height  = me.position[2] + me.eye_height;
+            new_pos = me.constraints.constrain(new_pos);
+            if (new_pos == NO_POS) {
+                printlog("warn",
+                         "WalkView: Constraint for " ~ me.view_name ~
+                         " returned NO_POS.");
+            } else {
+                me.position     = new_pos;
+                me.goal_height  = me.position[2] + me.eye_height;
+            }
         }
         # Change the view height smoothly
         if (math.abs(me.goal_height - cur_height) > 2.0 * dt) {
@@ -399,6 +409,27 @@ var ActionConstraint = {
     }
 };
 
+# Conditional constraint
+#   The area is only available when the predicate function returns true.
+#   constraint      - the area in question : constraint
+#   predicate()     - boolean function that determines if the area is available.
+var ConditionalConstraint = {
+    new : func (constraint, predicate = nil) {
+        var obj = { parents : [ConditionalConstraint] };
+        obj.constraint = constraint;
+        obj.predicate  = predicate;
+        return obj;
+    },
+    constrain : func (pos) {
+        if (me.predicate == nil or me.predicate()) {
+            return me.constraint.constrain(pos);
+        } else {
+            return NO_POS;
+        }
+    }
+};
+
+
 ###############################################################################
 # Manager classes.
 
@@ -442,6 +473,8 @@ var JSBSimPointmass = {
 
 var TO_RAD = math.pi/180;
 var TO_DEG = 180/math.pi;
+
+var NO_POS = [-9999.0, -9999.0, -9999.0];
 
 var walkers = {};
 
