@@ -183,11 +183,11 @@ var Walker = {
 
         var new_pos =
             [me.position[0] -
-             me.speed_fwd  * dt * math.cos(me.heading * TO_RAD) +
-             me.speed_side * dt * math.sin(me.heading * TO_RAD),
+             (me.speed_fwd  * dt * math.cos(me.heading * TO_RAD) +
+              me.speed_side * dt * math.sin(me.heading * TO_RAD)),
              me.position[1] -
-             me.speed_fwd  * dt * math.sin(me.heading * TO_RAD) -
-             me.speed_side * dt * math.cos(me.heading * TO_RAD),
+             (me.speed_fwd  * dt * math.sin(me.heading * TO_RAD) -
+              me.speed_side * dt * math.cos(me.heading * TO_RAD)),
              me.position[2]];
 
         var cur_height = me.position[2];
