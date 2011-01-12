@@ -152,7 +152,10 @@ var update_loop = func {
 
 	setprop("/consumables/fuel/total-fuel-gals", gals);
 	setprop("/consumables/fuel/total-fuel-lbs", lbs);
-	setprop("/consumables/fuel/total-fuel-norm", gals / cap);
+	if (cap == 0)
+		setprop("/consumables/fuel/total-fuel-norm", 0);
+	else
+		setprop("/consumables/fuel/total-fuel-norm", gals / cap);
 
 	foreach (var e; engines)
 		e.getNode("out-of-fuel", 1).setBoolValue(out_of_fuel);
