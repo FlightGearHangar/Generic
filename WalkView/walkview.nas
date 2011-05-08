@@ -254,7 +254,7 @@ var makePolylinePath = func (points, width, round_ends = 0) {
     if (size(points) < 2) return nil;
     var ret = LinePlane.new(points[0], points[1], width);
     if (round_ends) {
-        ret = UnionConstraint.new(line,
+        ret = UnionConstraint.new(ret,
                                   CircularXYSurface.new(points[0], width/2));
     }
     for (var i = 2; i < size(points); i += 1) {
