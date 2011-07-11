@@ -1364,7 +1364,7 @@ var pressureToHeight = func(p, p0) {
 }
 
 
-heightToPressure = func(z, p0) {
+var heightToPressure = func(z, p0) {
   #var p0 = p0;    # [Pa]
   #var z = z;     # [m]
   var t0 = 288.15;    # [K]
