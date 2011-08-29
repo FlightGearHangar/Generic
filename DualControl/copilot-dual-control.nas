@@ -3,7 +3,7 @@
 ##
 ## Nasal for copilot for dual control over the multiplayer network.
 ##
-##  Copyright (C) 2007 - 2010  Anders Gidenstam  (anders(at)gidenstam.org)
+##  Copyright (C) 2007 - 2011  Anders Gidenstam  (anders(at)gidenstam.org)
 ##  This file is licensed under the GPL license version 2 or later.
 ##
 ###############################################################################
@@ -123,7 +123,8 @@ var connect = func (pilot) {
     ] ~ ADC.copilot_connect_pilot(pilot);
 
   print("Dual control ... connected to pilot.");
-  setprop("/sim/messages/copilot", "Welcome aboard.");
+  setprop("/sim/messages/copilot", "Welcome aboard. I'm " ~
+          pilot.getNode("callsign").getValue() ~ ".");
 }
 
 var disconnect = func {
