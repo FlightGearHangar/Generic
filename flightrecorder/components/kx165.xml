@@ -7,14 +7,6 @@
 
     <signal>
         <type>bool</type>
-        <property type="string">/instrumentation/comm[%i]/serviceable</property>
-    </signal>
-    <signal>
-        <type>bool</type>
-        <property type="string">/instrumentation/nav[%i]/serviceable</property>
-    </signal>
-    <signal>
-        <type>bool</type>
         <property type="string">/instrumentation/nav[%i]/power-btn</property>
     </signal>
     <signal>
