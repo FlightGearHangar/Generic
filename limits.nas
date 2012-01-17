@@ -30,7 +30,7 @@ var checkFlaps = func(n) {
   if ((limits != nil) and (limits.getChildren("max-flap-extension-speed") != nil))
   {
     var children = limits.getChildren("max-flap-extension-speed");
-    foreach(c; children)
+    foreach(var c; children)
     {
       if ((c.getChild("flaps") != nil) and
           (c.getChild("speed") != nil)     )
