@@ -1,9 +1,8 @@
 ###############################################################################
-## $Id$
 ##
 ## Nasal for main pilot for dual control over the multiplayer network.
 ##
-##  Copyright (C) 2007 - 2011  Anders Gidenstam  (anders(at)gidenstam.org)
+##  Copyright (C) 2007 - 2012  Anders Gidenstam  (anders(at)gidenstam.org)
 ##  This file is licensed under the GPL license version 2 or later.
 ##
 ###############################################################################
@@ -37,12 +36,16 @@ var connect = func (copilot) {
 ######################################################################
 # Main loop singleton class.
 var main = {
+  _initialized : 0,
   init : func {
-    me.loopid = 0;
+    if (!me._initialized) {
+      me.loopid = 0;
+      setlistener("/ai/models/model-added", func {
+        settimer(func { me.activate(); }, 2);
+      });
+      me._initialized = 1;
+    }
     me.active = 0;
-    setlistener("/ai/models/model-added", func {
-      settimer(func { me.activate(); }, 2);
-    });
     settimer(func { me.activate(); }, 5);
     print("Pilot dual control ... initialized");
   },
