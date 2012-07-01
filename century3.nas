@@ -170,11 +170,11 @@ var apPower = func {
 #  print("v_test = ", v_test);
   if (valueTest > 0.5) {
     # autopilot just powered up
-    print("power up");
+    print("CENTURYIII power up");
     apInit();
   } elsif (valueTest < -0.5) {
     # autopilot just lost power
-    print("power lost");
+    print("CENTURYIII power lost");
     apInit();
     # note: all button and knobs disabled in functions below
   }
