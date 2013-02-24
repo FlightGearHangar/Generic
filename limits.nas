@@ -74,32 +74,15 @@ var checkGear = func(n) {
 setlistener("controls/flight/flaps", checkFlaps);
 setlistener("controls/gear/gear-down", checkGear);
 
-# =============================== Pilot G stuff (taken from hurricane.nas) =================================
-var pilot_g = props.globals.getNode("fdm/jsbsim/accelerations/a-pilot-z-ft_sec2", 1);
-pilot_g.setDoubleValue(0);
-
-var g_damp = 0;
-
-var updatePilotG = func {
-  var g = pilot_g.getValue() ;
-  #if (g == nil) { g = 0; }
-  g_damp = ( g * 0.2) + (g_damp * 0.8);
-
-  settimer(updatePilotG, 0.2);
-}
-
-updatePilotG();
 
 var checkGandVNE = func {
   if (getprop("/sim/freeze/replay-state"))
     return;
 
+  var g = getprop("/accelerations/pilot-gdamped") or 1;
   var max_positive = getprop("limits/max-positive-g");
   var max_negative = getprop("limits/max-negative-g");
   var msg = "";
-
-  # Convert the ft/sec^2 into Gs - allowing for gravity.
-  var g = (- g_damp) / 32;
 
   if ((max_positive != nil) and (g > max_positive))
   {
