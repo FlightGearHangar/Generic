@@ -19,6 +19,7 @@ var ai_enabled = nil;
 var engines = nil;
 var tanks = [];
 var refuelingN = nil;
+var contactN = nil;
 var aimodelsN = nil;
 var types = {};
 
@@ -47,7 +48,18 @@ var update_loop = func {
 	}
 
 	var refueling = serviceable and size(tankers) > 0;
-	refuelingN.setBoolValue(refueling);
+	
+	if (refuelingN.getNode("report-contact", 1).getValue()) {
+	  if (refueling and !contactN.getValue()) {
+			setprop("/sim/messages/copilot", "Engage");
+	  }
+	  
+	  if (!refueling and contactN.getValue()) {
+			setprop("/sim/messages/copilot", "Disengage");
+	  }
+	}
+	
+	contactN.setBoolValue(refueling);
 
 	if (fuel_freeze)
 		return settimer(update_loop, UPDATE_PERIOD);
@@ -65,8 +77,12 @@ var update_loop = func {
 
 	# calculate fuel received
 	if (refueling) {
-		# assume max flow rate is 6000 lbs/min (for KC135)
-		var received = 100 * UPDATE_PERIOD;
+		# Flow rate is the minimum of the tanker maxium rate
+		# and the aircraft maximum rate.  Both are expressed
+		# in lbs/min
+		var fuel_rate = math.min(tankers[0].getNode("refuel/max-fuel-transfer-lbs-min", 1).getValue() or 6000, 
+		                         refuelingN.getNode("max-fuel-transfer-lbs-min", 1).getValue());
+		var received =  UPDATE_PERIOD * fuel_rate / 60;
 		consumed -= received;
 	}
 
@@ -169,7 +185,8 @@ setlistener("/sim/signals/fdm-initialized", func {
 	if (contains(globals, "fuel") and typeof(fuel) == "hash")
 		fuel.loop = func nil;       # kill $FG_ROOT/Nasal/fuel.nas' loop
 
-	refuelingN = props.globals.initNode("/systems/refuel/contact", 0, "BOOL");
+	contactN = props.globals.initNode("/systems/refuel/contact", 0, "BOOL");
+	refuelingN = props.globals.getNode("/systems/refuel", 1);
 	aimodelsN = props.globals.getNode("ai/models", 1);
 	engines = props.globals.getNode("engines", 1).getChildren("engine");
 
