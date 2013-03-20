@@ -2,7 +2,7 @@
 <!--
   Walk view module for FlightGear.
 
-  Copyright (C) 2010  Anders Gidenstam  (anders(at)gidenstam.org)
+  Copyright (C) 2010 - 2013  Anders Gidenstam  (anders(at)gidenstam.org)
   This file is licensed under the GPL license v2 or later.
 -->
 <PropertyList>
@@ -15,7 +15,7 @@
 
     Include it in the keybord section of the aircraft's -set file.
 
-      <keyboard include="../Generic/WalkView/walk-view-keys.xml">
+      <keyboard include="Aircraft/Generic/WalkView/walk-view-keys.xml">
 
 
    Note: If the aircraft use other custom key bindings for the same keys
