@@ -81,7 +81,7 @@ var update_loop = func {
 		# and the aircraft maximum rate.  Both are expressed
 		# in lbs/min
 		var fuel_rate = math.min(tankers[0].getNode("refuel/max-fuel-transfer-lbs-min", 1).getValue() or 6000, 
-		                         refuelingN.getNode("max-fuel-transfer-lbs-min", 1).getValue());
+		                         refuelingN.getNode("max-fuel-transfer-lbs-min", 1).getValue() or 6000);
 		var received =  UPDATE_PERIOD * fuel_rate / 60;
 		consumed -= received;
 	}
