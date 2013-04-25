@@ -71,6 +71,10 @@
     </signal>
     <signal>
         <type>float</type>
+        <property type="string">/velocities/mach</property>
+    </signal>
+    <signal>
+        <type>float</type>
         <property type="string">/velocities/airspeed-kt</property>
     </signal>
     <signal>
