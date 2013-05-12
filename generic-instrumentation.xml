@@ -61,14 +61,6 @@ file, these values will be used (they are hardcoded).
     <number>0</number>
   </dme>
 
-  <altimeter>
-    <name>encoder</name>
-    <number>0</number>
-    <static-pressure>/systems/static/pressure-inhg</static-pressure>
-    <quantum>10</quantum>
-    <tau>0.1</tau>
-  </altimeter>
-
   <marker-beacon>
     <name>marker-beacon</name>
     <number>0</number>
@@ -79,12 +71,7 @@ file, these values will be used (they are hardcoded).
     <number>0</number>
     <suction>/systems/vacuum/suction-inhg</suction>
   </heading-indicator>
-
-  <KT-70>
-    <name>kt-70</name>
-    <number>0</number>
-  </KT-70>
-
+  
   <magnetic-compass>
     <name>magnetic-compass</name>
     <number>0</number>
@@ -106,9 +93,6 @@ file, these values will be used (they are hardcoded).
   </slip-skid-ball>
 
   <transponder>
-    <name>transponder</name>
-    <number>0</number>
-    <mode-c-altitude>/instrumentation/encoder/mode-c-alt-ft</mode-c-altitude>
   </transponder>
 
   <turn-indicator>
