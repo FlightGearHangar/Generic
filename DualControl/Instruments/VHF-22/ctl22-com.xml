@@ -17,6 +17,7 @@ NOTE: ctl22.nas MUST be loaded as Nasal module VHF22.
  <params>
   <serviceable>instrumentation/comm[0]/serviceable</serviceable>
   <electrical-supply>systems/electrical/outputs/comm[0]</electrical-supply>
+  <volume-norm>instrumentation/comm[0]/volume</volume-norm>
   <selected-freq-mhz>instrumentation/comm[0]/frequencies/selected-mhz</selected-freq-mhz>
   <standby-freq-mhz>instrumentation/comm[0]/frequencies/standby-mhz</standby-freq-mhz>
   <swap-script>VHF22.swap(0);</swap-script>
@@ -24,6 +25,8 @@ NOTE: ctl22.nas MUST be loaded as Nasal module VHF22.
   <small-dec-script>VHF22.adjust_frequency(0, -0.025);</small-dec-script>
   <big-inc-script>VHF22.adjust_frequency(0,  1.0);</big-inc-script>
   <big-dec-script>VHF22.adjust_frequency(0, -1.0);</big-dec-script>
+
+  <lighting-norm>controls/lighting/panel-norm</lighting-norm>
  </params>
 
  <path>ctl22.ac</path>
@@ -38,10 +41,13 @@ NOTE: ctl22.nas MUST be loaded as Nasal module VHF22.
   <object-name>freq.005</object-name>
   <object-name>freq.006</object-name>
   <condition>
-   <greater-than>
-    <property alias="../../../../params/electrical-supply"/>
-    <value>1</value>
-   </greater-than>
+   <and>
+    <property alias="../../../../params/serviceable"/>
+    <greater-than>
+     <property alias="../../../../../params/electrical-supply"/>
+     <value>1</value>
+    </greater-than>
+   </and>
   </condition>
  </animation>
 
@@ -55,10 +61,13 @@ NOTE: ctl22.nas MUST be loaded as Nasal module VHF22.
   <object-name>stby.005</object-name>
   <object-name>stby.006</object-name>
   <condition>
-   <greater-than>
-    <property alias="../../../../params/electrical-supply"/>
-    <value>1</value>
-   </greater-than>
+   <and>
+    <property alias="../../../../params/serviceable"/>
+    <greater-than>
+     <property alias="../../../../../params/electrical-supply"/>
+     <value>1</value>
+    </greater-than>
+   </and>
   </condition>
  </animation>
 
@@ -66,31 +75,42 @@ NOTE: ctl22.nas MUST be loaded as Nasal module VHF22.
   <type>select</type>
   <object-name>mem.annun</object-name>
   <condition>
-   <greater-than>
-    <property alias="../../../../params/electrical-supply"/>
-    <value>1</value>
-   </greater-than>
+   <and>
+    <property alias="../../../../params/serviceable"/>
+    <greater-than>
+     <property alias="../../../../../params/electrical-supply"/>
+     <value>1</value>
+    </greater-than>
+   </and>
   </condition>
  </animation>
 
  <animation>
-  <type>rotate</type>
-  <object-name>CTL-22.pwr</object-name>
-  <property alias="../../params/serviceable"/>
-  <interpolation>
-   <entry><ind>0</ind><dep>0</dep></entry>
-   <entry><ind>1.0</ind><dep>30</dep></entry>
-  </interpolation>
-  <center>
-   <x-m>0.0</x-m>
-   <y-m>-0.014</y-m>
-   <z-m>-0.018</z-m>
-  </center>
-  <axis>
-   <x>-1</x>
-   <y>0</y>
-   <z>0</z>
-  </axis>
+  <type>select</type>
+  <object-name>CTL-22.xfr</object-name>
+  <condition>
+   <and>
+    <property alias="../../../../params/serviceable"/>
+    <greater-than>
+     <property alias="../../../../../params/electrical-supply"/>
+     <value>1</value>
+    </greater-than>
+   </and>
+  </condition>
+ </animation>
+
+ <animation>
+  <type>select</type>
+  <object-name>CTL-22.mem</object-name>
+  <condition>
+   <and>
+    <property alias="../../../../params/serviceable"/>
+    <greater-than>
+     <property alias="../../../../../params/electrical-supply"/>
+     <value>1</value>
+    </greater-than>
+   </and>
+  </condition>
  </animation>
 
 <!--    Active Frequency   -->
@@ -279,109 +299,117 @@ NOTE: ctl22.nas MUST be loaded as Nasal module VHF22.
  </animation>
 
  <animation>
-  <type>pick</type>
-  <object-name>pwr.off</object-name>
+  <type>knob</type>
+  <object-name>CTL-22.pwr</object-name>
+  <property alias="../../params/serviceable"/>
+  <interpolation>
+   <entry><ind>0</ind><dep>0</dep></entry>
+   <entry><ind>1.0</ind><dep>30</dep></entry>
+  </interpolation>
+  <center>
+   <x-m>0.0</x-m>
+   <y-m>-0.014</y-m>
+   <z-m>-0.018</z-m>
+  </center>
+  <axis>
+   <x>-1</x>
+   <y>0</y>
+   <z>0</z>
+  </axis>
   <action>
-   <button>0</button>
-   <repeatable>false</repeatable>
    <binding>
-    <command>property-assign</command>
+    <command>property-toggle</command>
     <property alias="../../../../params/serviceable"/>
-    <value>false</value>
+    <value type="bool">0</value>
+    <value type="bool">1</value>
    </binding>
   </action>
  </animation>
 
  <animation>
-  <type>pick</type>
-  <object-name>pwr.on</object-name>
+  <type>knob</type>
+  <object-name>CTL-22.vol</object-name>
+  <property alias="../../params/volume-norm"/>
+  <factor>300</factor>
+  <center>
+   <x-m>0.0</x-m>
+   <y-m>-0.0138</y-m>
+   <z-m>-0.0183</z-m>
+  </center>
+  <axis>
+   <x>-1</x>
+   <y>0</y>
+   <z>0</z>
+  </axis>
   <action>
-   <button>0</button>
-   <repeatable>false</repeatable>
    <binding>
-    <command>property-assign</command>
-    <property alias="../../../../params/serviceable"/>
-    <value>true</value>
+    <command>property-adjust</command>
+    <property alias="../../../../params/volume-norm"/>
+    <factor type="double">0.02</factor>
+    <min type="double">0.0</min>
+    <max type="double">1.0</max>
    </binding>
   </action>
  </animation>
 
  <animation>
-  <type>pick</type>
+  <type>knob</type>
   <object-name>freq.knob.kHz</object-name>
-  <action>
-   <button>0</button>
-   <repeatable>true</repeatable>
-   <interval-sec>0.2</interval-sec>
+  <increase>
    <binding>
     <command>nasal</command>
     <script alias="../../../../params/small-inc-script"/>
    </binding>
-  </action>
-  <action>
-   <button>1</button>
-   <repeatable>true</repeatable>
-   <interval-sec>0.2</interval-sec>
+  </increase>
+  <decrease>
    <binding>
     <command>nasal</command>
     <script alias="../../../../params/small-dec-script"/>
    </binding>
-  </action>
-  <action>
-   <button>3</button>
-   <repeatable>false</repeatable>
-   <binding>
-    <command>nasal</command>
-    <script alias="../../../../params/small-dec-script"/>
-   </binding>
-  </action>
-  <action>
-   <button>4</button>
-   <repeatable>false</repeatable>
-   <binding>
-    <command>nasal</command>
-    <script alias="../../../../params/small-inc-script"/>
-   </binding>
-  </action>
+  </decrease>
  </animation>
 
  <animation>
-  <type>pick</type>
+  <type>knob</type>
   <object-name>freq.knob.MHz</object-name>
-  <action>
-   <button>0</button>
-   <repeatable>true</repeatable>
-   <interval-sec>0.2</interval-sec>
+  <increase>
    <binding>
     <command>nasal</command>
     <script alias="../../../../params/big-inc-script"/>
    </binding>
-  </action>
-  <action>
-   <button>1</button>
-   <repeatable>true</repeatable>
-   <interval-sec>0.2</interval-sec>
+  </increase>
+  <decrease>
    <binding>
     <command>nasal</command>
     <script alias="../../../../params/big-dec-script"/>
    </binding>
-  </action>
-  <action>
-   <button>3</button>
-   <repeatable>false</repeatable>
-   <binding>
-    <command>nasal</command>
-    <script alias="../../../../params/big-dec-script"/>
-   </binding>
-  </action>
-  <action>
-   <button>4</button>
-   <repeatable>false</repeatable>
-   <binding>
-    <command>nasal</command>
-    <script alias="../../../../params/big-inc-script"/>
-   </binding>
-  </action>
+  </decrease>
+ </animation>
+
+ <animation>
+  <type>material</type>
+  <object-name>freq.knob.kHz</object-name>
+  <object-name>freq.knob.MHz</object-name>
+  <object-name>CTL-22.vol</object-name>
+  <object-name>act.btn</object-name>
+  <object-name>sto.btn</object-name>
+  <object-name>test.btn</object-name>
+  <emission>
+   <factor-prop alias="../../../params/lighting-norm"/>
+   <red>0.4</red>
+   <green>0.4</green>
+   <blue>0.4</blue>
+  </emission>
+ </animation>
+ <animation>
+  <type>material</type>
+  <object-name>CTL-22</object-name>
+  <emission>
+   <factor-prop alias="../../../params/lighting-norm"/>
+   <red>0.15</red>
+   <green>0.15</green>
+   <blue>0.15</blue>
+  </emission>
  </animation>
 
 </PropertyList>
