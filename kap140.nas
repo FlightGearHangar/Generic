@@ -17,7 +17,7 @@ var settings = "/autopilot/KAP140/settings";
 var annunciators = "/autopilot/KAP140/annunciators";
 var internal = "/autopilot/internal";
 var power="/systems/electrical/outputs/autopilot";
-var encoder =  "/instrumentation/encoder";
+var encoder =  "/instrumentation/altimeter";
 var flightControls = "/controls/flight";
 
 # locks
