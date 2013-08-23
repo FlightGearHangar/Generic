@@ -371,7 +371,7 @@ var CAS = {
       return 0;
     }
     var mach = getprop("/velocities/mach");
-    var slip = getprop("/orientation/side-slip-deg");
+    var slip = -getprop("/orientation/side-slip-deg"); <!-- inverted after a change in side-slip sign (bug #901) -->
     var min_speed_threshold = getprop("/controls/flight/fcs/gains/cas/input/anti-side-slip-min-speed");
     if (mach < min_speed_threshold) { # works only if air speed > min_speed_threshold
       slip = 0;
