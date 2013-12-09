@@ -9,7 +9,22 @@ var hatch_specs = {
 	rear_hatch_loc: 5,
 	out_locations: func (loc) {
 			if (loc == 0) {		# exit but not by hatch
-				var new_coord = xy2LatLonZ(getprop ("sim/model/map/default_exit/x-offset-m"),getprop ("sim/model/map/default_exit/y-offset-m"));	# get default exit coordinates from set file
+
+				# get default exit coordinates from set file
+
+				var defx = getprop ("sim/model/map/default_exit/x-offset-m");
+				var defy = getprop ("sim/model/map/default_exit/y-offset-m");
+
+		#		if no exit is specified in set file, start at 0,0
+
+				if (defx == nil ) {
+					defx =0;
+				}
+				if (defy == nil ) {
+					defy =0;
+				}
+
+				var new_coord = xy2LatLonZ(defx,defy);	
 			} elsif (loc == 1) {
 				var new_coord = xy2LatLonZ(getprop("sim/model/bluebird/crew/walker/x-offset-m"),-4.9);
 			} elsif (loc == 2) {
