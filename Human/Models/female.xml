@@ -120,18 +120,7 @@
 		<foot-y-r>0.1031</foot-y-r>
 		<foot-z>-0.8852</foot-z>
 	</limbs>
-	 <animation>
-	  <type>select</type>
-		<object-name>head</object-name>
-		<object-name>hair</object-name>
-		<object-name>eyes</object-name>
-	  <condition>
-		 <not-equals>
-	    <property>sim/current-view/name</property>
-	    <value>Walk View</value>
-	   </not-equals>
-	  </condition>
-	 </animation>
+
 
 <!-- hip -->
 	<animation>

@@ -402,7 +402,15 @@ var ext_mov = func (moved) {
 		var lat3 = lat_m * ERAD_deg;
 		var lon3 = lon_m * ERAD_deg / cos(posy1);
 		posx2 = posx1 - lon3;	# heading is offset or reversed west to east
-		posy2 = (posy1 < 0 ? posy1 - lat3 : posy1 + lat3);
+	#	if (posy1 < 0 ) {
+	#			posy2 = posy1 + lat3;
+	#			print (" South");
+	#	} else {
+	#			posy2 = posy1 + lat3;
+	#			print (" North");
+	#	}
+		posy2 = posy1 + lat3;
+	#	posy2 = (posy1 < 0 ? posy1 - lat3 : posy1 + lat3);
 				#        southern or northern hemisphere
 	}
 	if (falling) {	# add movement from aircraft upon jumping
@@ -762,6 +770,8 @@ var reinit_walker = func {
 	setprop("sim/walker/parachute-opened-altitude-ft", 0);
 	parachute_deployed_sec = 0;
 	setprop("sim/walker/parachute-opened-sec", 0);
+	setprop("sim/walker/key-triggers/outside-toggle",1);
+	walker_model.remove();
 }
 
 var init_common = func {

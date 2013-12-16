@@ -58,7 +58,7 @@
  </animation>
 
 	<model> 
-		<path>Aircraft/Generic/Human/Models/outfit/flightsuit-m.xml</path>
+		<path>Aircraft/Generic/Human/Models/outfit/flightsuit.xml</path>
 		<name>Flightsuit</name>
 	</model>
  <animation>

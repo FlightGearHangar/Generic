@@ -1,6 +1,6 @@
 AC3Db
 MATERIAL "DefaultWhite" rgb 1 1 1  amb 1 1 1  emis 0 0 0  spec 0.5 0.5 0.5  shi 64  trans 0
-MATERIAL "trousers" rgb 0.152063 0.144304 0.14815 amb 1 1 1 emis 0 0 0 spec 0 0 0 shi 0 trans 0
+MATERIAL "trousers" rgb 0.152063 0.144304 0.14815 amb 1 1 1 emis 0 0 0 spec 0.322712 0.307983 0.321806 shi 128 trans 0
 MATERIAL "boots" rgb 0.168753 0.17555 0.210344 amb 1 1 1 emis 0 0 0 spec 0.5 0.5 0.5 shi 128 trans 0
 MATERIAL "boots.001" rgb 0.168753 0.17555 0.210344 amb 1 1 1 emis 0 0 0 spec 0.5 0.5 0.5 shi 128 trans 0
 MATERIAL "alu.001" rgb 0.55592 0.55592 0.55592 amb 1 1 1 emis 0 0 0 spec 1 1 1 shi 64 trans 0
