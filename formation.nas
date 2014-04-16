@@ -40,9 +40,11 @@ initialize = func {
 	print("Initializing formation ...");
 	
 	# initialise dialogs 
+
 	aircraft.data.add("sim/model/formation/variant");
 	formation_dialog = gui.OverlaySelector.new("Select Formation",
 		"Aircraft/Generic/Formations",
+		"sim/model/formation/variant",
 		"sim/model/formation/variant", nil, func(no) {
 			formation_variant_Node.setIntValue(no);
 			tgt_x_offset_Node.setDoubleValue(getprop("/sim/model/formation/position/x-offset"));
