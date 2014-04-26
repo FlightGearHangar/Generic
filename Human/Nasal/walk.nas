@@ -266,33 +266,42 @@ var main_loop = func {
 	settimer(main_loop, 0.01)
 }
 
-var walker_model = {
-	add:	func {
-			if (getprop("sim/model/crew/walker/visible")) {
-				if (getprop("logging/walker-position")) {
-					print("walker_model.add");
-				}
-				props.globals.getNode("models/model/path", 1);
-				props.globals.getNode("models/model/longitude-deg-prop", 1);
-				props.globals.getNode("models/model/latitude-deg-prop", 1);
-				props.globals.getNode("models/model/elevation-ft-prop", 1);
-				props.globals.getNode("models/model/heading-deg-prop", 1);
-				
-				setprop ("models/model/path", "Aircraft/Generic/Human/Models/walker.xml");
-				setprop ("models/model/longitude-deg-prop", "sim/walker/longitude-deg");
-				setprop ("models/model/latitude-deg-prop", "sim/walker/latitude-deg");
-				setprop ("models/model/elevation-ft-prop", "sim/walker/altitude-ft");
-				setprop ("models/model/heading-deg-prop", "sim/walker/model-heading-deg");
-				props.globals.getNode("models/model/load", 1);
-			}
-		},
-	remove:	func {
-			if (getprop("logging/walker-position")) {
-				print("walker_model.remove");
-			}
-			props.globals.getNode("models", 1).removeChild("model", 0);
-			walker_model.reset_fall();
-		},
+    var walker_model = {
+       index:   0,
+       add:   func {
+             if (getprop("sim/model/crew/walker/visible")) {
+                if (getprop("logging/walker-position")) {
+                   print("walker_model.add");
+                }
+             var manager = props.globals.getNode("/models", 1);
+                var i = 0;
+                for (; 1; i += 1)
+                   if (manager.getChild("model", i, 0) == nil)
+                      break;
+                
+                props.globals.getNode("models/model[" ~ i ~ "]/path", 1);
+                props.globals.getNode("models/model[" ~ i ~ "]/longitude-deg-prop", 1);
+                props.globals.getNode("models/model[" ~ i ~ "]/latitude-deg-prop", 1);
+                props.globals.getNode("models/model[" ~ i ~ "]/elevation-ft-prop", 1);
+                props.globals.getNode("models/model[" ~ i ~ "]/heading-deg-prop", 1);
+                
+                setprop ("models/model[" ~ i ~ "]/path", "Aircraft/Generic/Human/Models/walker.xml");
+                setprop ("models/model[" ~ i ~ "]/longitude-deg-prop", "sim/walker/longitude-deg");
+                setprop ("models/model[" ~ i ~ "]/latitude-deg-prop", "sim/walker/latitude-deg");
+                setprop ("models/model[" ~ i ~ "]/elevation-ft-prop", "sim/walker/altitude-ft");
+                setprop ("models/model[" ~ i ~ "]/heading-deg-prop", "sim/walker/model-heading-deg");
+                props.globals.getNode("models/model[" ~ i ~ "]/load", 1);
+                me.index = i;
+             }
+          },
+       remove:   func {
+             if (getprop("logging/walker-position")) {
+                print("walker_model.remove");
+             }
+             props.globals.getNode("/models", 1).removeChild("model", me.index);
+             walker_model.reset_fall();
+          },
+
 	reset_fall: func {
 			falling = 0;
 			walk_factor = 1.0;
@@ -830,4 +839,5 @@ var init_common = func {
 settimer(init_common,0);
 
 var theme_dialog = gui.OverlaySelector.new("Select Theme", "Aircraft/Generic/Human/Models/Themes", "sim/walker/theme-name", nil, "sim/multiplay/generic/string[10]");
+var equip_dialog = gui.OverlaySelector.new("Select Equipment", "Aircraft/Generic/Human/Models/equipment/Themes", "sim/walker/equipment-name", nil, "sim/multiplay/generic/string[11]");
 

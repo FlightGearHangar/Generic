@@ -17,6 +17,7 @@ var trigger_falling_node = props.globals.getNode("sim/model/walker[1]/animate/tr
 var trigger_landing_node = props.globals.getNode("sim/model/walker[1]/animate/triggers/landing", 1);
 var trigger_open_parachute_node = props.globals.getNode("sim/model/walker[1]/animate/triggers/open-parachute", 1);
 var trigger_crashing_node = props.globals.getNode("sim/model/walker[1]/animate/triggers/crashing", 1);
+var trigger_free1_node = props.globals.getNode("sim/model/walker[1]/animate/triggers/free1", 1);
 var seq_node_now = nil;
 var content_modified_node = props.globals.getNode("sim/gui/dialogs/position-modified", 1);
 var walker_dialog1 = nil;
@@ -28,8 +29,8 @@ var position_count = 0;
 var anim_enabled = 0;
 var anim_running = -1;
 var triggers_enabled = 1;
-var triggers_list = [0, 0, 0, 0, 0, 0, 0, 0];
-var triggers_names = ["standing","walking","running","backwards","falling","open-parachute","landing","crashing"];
+var triggers_list = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+var triggers_names = ["standing","walking","running","backwards","falling","open-parachute","landing","crashing","free1"];
 var triggers_abbrev = ["S","W","R","B","F","P","L","C"];
 var log_priority = getprop("sim/logging/priority");
 var log_level = 0;
@@ -1846,6 +1847,7 @@ var animate = {
 		combo.prop().getNode("value[6]", 1).setValue("Open-Parachute");
 		combo.prop().getNode("value[7]", 1).setValue("Landing");
 		combo.prop().getNode("value[8]", 1).setValue("Crashing");
+		combo.prop().getNode("value[9]", 1).setValue("free1");
 		combo.prop().getNode("binding[0]/command", 1).setValue("dialog-apply");
 		combo.prop().getNode("binding[1]/command", 1).setValue("property-assign");
 		combo.prop().getNode("binding[1]/property", 1).setValue("sim/gui/dialogs/position-modified");
@@ -2023,6 +2025,9 @@ var animate_update = func (seq_node) {
 	walker1_node.getNode("limb[4]", 1).getNode("z-deg", 1).setValue(interpolate_limb(from_node.getNode("limb[4]", 1).getNode("z-deg", 1).getValue(), to_node.getNode("limb[4]", 1).getNode("z-deg", 1).getValue(), move_percent));
 	walker1_node.getNode("limb[5]", 1).getNode("x-deg", 1).setValue(interpolate_limb(from_node.getNode("limb[5]", 1).getNode("x-deg", 1).getValue(), to_node.getNode("limb[5]", 1).getNode("x-deg", 1).getValue(), move_percent));
 	walker1_node.getNode("limb[5]", 1).getNode("y-deg", 1).setValue(interpolate_limb(from_node.getNode("limb[5]", 1).getNode("y-deg", 1).getValue(), to_node.getNode("limb[5]", 1).getNode("y-deg", 1).getValue(), move_percent));
+
+# 	walker1_node.getNode("limb[5]", 1).getNode("hand-pose", 1).setValue(interpolate_limb(from_node.getNode("limb[5]", 1).getNode("y-deg", 1).getValue(), to_node.getNode("limb[5]", 1).getNode("hand-pose", 1).getValue(), move_percent));
+
 	walker1_node.getNode("limb[6]", 1).getNode("x-deg", 1).setValue(interpolate_limb(from_node.getNode("limb[6]", 1).getNode("x-deg", 1).getValue(), to_node.getNode("limb[6]", 1).getNode("x-deg", 1).getValue(), move_percent));
 	walker1_node.getNode("limb[6]", 1).getNode("y-deg", 1).setValue(interpolate_limb(from_node.getNode("limb[6]", 1).getNode("y-deg", 1).getValue(), to_node.getNode("limb[6]", 1).getNode("y-deg", 1).getValue(), move_percent));
 	walker1_node.getNode("limb[6]", 1).getNode("z-deg", 1).setValue(interpolate_limb(from_node.getNode("limb[6]", 1).getNode("z-deg", 1).getValue(), to_node.getNode("limb[6]", 1).getNode("z-deg", 1).getValue(), move_percent));
@@ -2268,6 +2273,19 @@ var discover_triggers = func (verbose) {
 				print ("  ignoring duplicate trigger (",i,") for crashing");
 				bluebird.popupTip2("Trigger crashing set to position ("~trigger_crashing_node.getValue()~")",5);
 				gui.popupTip("Ignoring duplicate trigger ("~i~") for crashing",6);
+			}
+		} elsif (t == "free1") {
+			if (triggers_list[8] == 0) {
+				trigger_free1_node.setValue(int(i));
+				if (verbose and log_level > 0) {
+					print ("    found trigger: loading animation free1 to position ",i);
+				}
+				triggers_list[8] = 1;
+				trig_c += 32;
+			} else {
+				print ("  ignoring duplicate trigger (",i,") free1");
+				bluebird.popupTip2("Trigger free1 set to position ("~trigger_open_parachute_node.getValue()~")",5);
+				gui.popupTip("Ignoring duplicate trigger ("~i~") free1",6);
 			}
 		}
 	}

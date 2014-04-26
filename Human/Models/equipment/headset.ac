@@ -5,7 +5,7 @@ MATERIAL "headset1.001" rgb 0.154561 0.255806 0.091282 amb 1 1 1 emis 0 0 0 spec
 OBJECT world
 kids 1
 OBJECT poly
-name "head"
+name "head1"
 loc 0.01018 0.583425 0.000533
 data 8
 head.003

@@ -155,7 +155,10 @@
 		<character>0</character>
 		<gender>0</gender>
 		<outfit>0</outfit>
-
+		<hair>1</hair>
+		<headgear>0</headgear>
+		<eyewear>0</eyewear>
+		<tools>0</tools>
 		<outside type="bool">false</outside>
 		<walking type="int">0</walking>
 		<walking-momentum type="bool">false</walking-momentum>
@@ -269,6 +272,13 @@
 						<binding>
                 <command>nasal</command>
                 <script>walk.theme_dialog.toggle()</script>
+              </binding>
+					</item>
+					<item>
+						<label>Select Equipment</label>
+						<binding>
+                <command>nasal</command>
+                <script>walk.equip_dialog.toggle()</script>
               </binding>
 					</item>
 					<item>
